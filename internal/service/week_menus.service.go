@@ -54,24 +54,25 @@ func (s *serv) GetWeekMenuByID(ctx context.Context, id string) (*models.WeekMenu
 
 	menuItems := make([]models.WeekMenuItem, len(items))
 	for i, item := range items {
-		tDish, _ := s.repo.GetDishByID(ctx, item.TraditionalDishID)
-		hDish, _ := s.repo.GetDishByID(ctx, item.HealthyDishID)
-		vDish, _ := s.repo.GetDishByID(ctx, item.VegetarianDishID)
-
 		mi := models.WeekMenuItem{
 			ID:         item.ID,
 			WeekMenuID: item.WeekMenuID,
 			MenuDate:   item.MenuDate.Format("2006-01-02"),
 		}
-		if tDish != nil {
-			mi.TraditionalDish = &models.Dish{ID: tDish.ID, Name: tDish.Name, MenuType: tDish.MenuType}
+
+		if mtEntity, err := s.repo.GetMenuTypeByID(ctx, item.MenuTypeID); err == nil {
+			mi.MenuType = &models.MenuType{
+				ID:        mtEntity.ID,
+				Name:      mtEntity.Name,
+				SortOrder: mtEntity.SortOrder,
+				Active:    mtEntity.Active,
+			}
 		}
-		if hDish != nil {
-			mi.HealthyDish = &models.Dish{ID: hDish.ID, Name: hDish.Name, MenuType: hDish.MenuType}
+
+		if dish, err := s.repo.GetDishByID(ctx, item.DishID); err == nil {
+			mi.Dish = &models.Dish{ID: dish.ID, Name: dish.Name}
 		}
-		if vDish != nil {
-			mi.VegetarianDish = &models.Dish{ID: vDish.ID, Name: vDish.Name, MenuType: vDish.MenuType}
-		}
+
 		menuItems[i] = mi
 	}
 
@@ -84,20 +85,31 @@ func (s *serv) GetWeekMenuByID(ctx context.Context, id string) (*models.WeekMenu
 	}, nil
 }
 
-func (s *serv) AddWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, traditionalDishID, healthyDishID, vegetarianDishID string) (*models.WeekMenuItem, error) {
-	item, err := s.repo.SaveWeekMenuItem(ctx, weekMenuID, menuDate, traditionalDishID, healthyDishID, vegetarianDishID)
+func (s *serv) AddWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, menuTypeID, dishID string) (*models.WeekMenuItem, error) {
+	item, err := s.repo.SaveWeekMenuItem(ctx, weekMenuID, menuDate, menuTypeID, dishID)
 	if err != nil {
 		return nil, err
 	}
-	return &models.WeekMenuItem{
+
+	mi := &models.WeekMenuItem{
 		ID:         item.ID,
 		WeekMenuID: item.WeekMenuID,
 		MenuDate:   item.MenuDate.Format("2006-01-02"),
-	}, nil
+	}
+
+	if mtEntity, err := s.repo.GetMenuTypeByID(ctx, item.MenuTypeID); err == nil {
+		mi.MenuType = &models.MenuType{ID: mtEntity.ID, Name: mtEntity.Name}
+	}
+
+	if dish, err := s.repo.GetDishByID(ctx, item.DishID); err == nil {
+		mi.Dish = &models.Dish{ID: dish.ID, Name: dish.Name}
+	}
+
+	return mi, nil
 }
 
-func (s *serv) UpdateWeekMenuItem(ctx context.Context, id, traditionalDishID, healthyDishID, vegetarianDishID string) error {
-	return s.repo.UpdateWeekMenuItem(ctx, id, traditionalDishID, healthyDishID, vegetarianDishID)
+func (s *serv) UpdateWeekMenuItem(ctx context.Context, id, dishID string) error {
+	return s.repo.UpdateWeekMenuItem(ctx, id, dishID)
 }
 
 func (s *serv) DeleteWeekMenuItem(ctx context.Context, id string) error {

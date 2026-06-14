@@ -9,17 +9,19 @@ type WeekMenu struct {
 }
 
 type WeekMenuItem struct {
-	ID               string `json:"id"`
-	WeekMenuID       string `json:"week_menu_id"`
-	MenuDate         string `json:"menu_date"`
-	TraditionalDish  *Dish  `json:"traditional_dish,omitempty"`
-	HealthyDish      *Dish  `json:"healthy_dish,omitempty"`
-	VegetarianDish   *Dish  `json:"vegetarian_dish,omitempty"`
+	ID         string    `json:"id"`
+	WeekMenuID string    `json:"week_menu_id"`
+	MenuDate   string    `json:"menu_date"`
+	MenuType   *MenuType `json:"menu_type,omitempty"`
+	Dish       *Dish     `json:"dish,omitempty"`
 }
 
 type DayMenu struct {
-	Date            string `json:"date"`
-	TraditionalDish *Dish  `json:"traditional"`
-	HealthyDish     *Dish  `json:"healthy"`
-	VegetarianDish  *Dish  `json:"vegetarian"`
+	Date  string          `json:"date"`
+	Lines []DayMenuLine   `json:"lines"`
+}
+
+type DayMenuLine struct {
+	MenuType *MenuType `json:"menu_type"`
+	Dish     *Dish     `json:"dish"`
 }

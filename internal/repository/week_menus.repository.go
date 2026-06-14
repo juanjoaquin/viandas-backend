@@ -51,12 +51,12 @@ func (r *repo) DeleteWeekMenu(ctx context.Context, id string) error {
 	return err
 }
 
-func (r *repo) SaveWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, traditionalDishID, healthyDishID, vegetarianDishID string) (*entity.WeekMenuItem, error) {
+func (r *repo) SaveWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, menuTypeID, dishID string) (*entity.WeekMenuItem, error) {
 	var item entity.WeekMenuItem
 	err := r.db.QueryRowxContext(ctx,
-		`INSERT INTO week_menu_items (week_menu_id, menu_date, traditional_dish_id, healthy_dish_id, vegetarian_dish_id)
-		 VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-		weekMenuID, menuDate, traditionalDishID, healthyDishID, vegetarianDishID,
+		`INSERT INTO week_menu_items (week_menu_id, menu_date, menu_type_id, dish_id)
+		 VALUES ($1, $2, $3, $4) RETURNING *`,
+		weekMenuID, menuDate, menuTypeID, dishID,
 	).StructScan(&item)
 	if err != nil {
 		return nil, err
@@ -67,28 +67,31 @@ func (r *repo) SaveWeekMenuItem(ctx context.Context, weekMenuID string, menuDate
 func (r *repo) GetWeekMenuItems(ctx context.Context, weekMenuID string) ([]entity.WeekMenuItem, error) {
 	var items []entity.WeekMenuItem
 	err := r.db.SelectContext(ctx, &items,
-		`SELECT * FROM week_menu_items WHERE week_menu_id = $1 ORDER BY menu_date`,
+		`SELECT wmi.* FROM week_menu_items wmi
+		 JOIN menu_types mt ON mt.id = wmi.menu_type_id
+		 WHERE wmi.week_menu_id = $1
+		 ORDER BY wmi.menu_date, mt.sort_order`,
 		weekMenuID,
 	)
 	return items, err
 }
 
-func (r *repo) GetWeekMenuItemByDate(ctx context.Context, date time.Time) (*entity.WeekMenuItem, error) {
-	var item entity.WeekMenuItem
-	err := r.db.GetContext(ctx, &item,
-		`SELECT * FROM week_menu_items WHERE menu_date = $1`,
+func (r *repo) GetWeekMenuItemsByDate(ctx context.Context, date time.Time) ([]entity.WeekMenuItem, error) {
+	var items []entity.WeekMenuItem
+	err := r.db.SelectContext(ctx, &items,
+		`SELECT wmi.* FROM week_menu_items wmi
+		 JOIN menu_types mt ON mt.id = wmi.menu_type_id
+		 WHERE wmi.menu_date = $1
+		 ORDER BY mt.sort_order`,
 		date,
 	)
-	if err != nil {
-		return nil, err
-	}
-	return &item, nil
+	return items, err
 }
 
-func (r *repo) UpdateWeekMenuItem(ctx context.Context, id, traditionalDishID, healthyDishID, vegetarianDishID string) error {
+func (r *repo) UpdateWeekMenuItem(ctx context.Context, id, dishID string) error {
 	_, err := r.db.ExecContext(ctx,
-		`UPDATE week_menu_items SET traditional_dish_id=$1, healthy_dish_id=$2, vegetarian_dish_id=$3, updated_at=NOW() WHERE id=$4`,
-		traditionalDishID, healthyDishID, vegetarianDishID, id,
+		`UPDATE week_menu_items SET dish_id=$1, updated_at=NOW() WHERE id=$2`,
+		dishID, id,
 	)
 	return err
 }

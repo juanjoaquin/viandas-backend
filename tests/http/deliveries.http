@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = <pega_tu_token_aqui>
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
 @deliveryId = <pega_el_id_del_delivery>
 
 ### ─────────────────────────────
@@ -13,8 +13,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Juan",
-  "phone": "2804207744"
+  "name": "Juan Fernandez",
+  "phone": "2804203212"
 }
 
 ###
@@ -37,7 +37,7 @@ Authorization: Bearer {{token}}
 ###
 
 ### Obtener delivery por ID
-GET {{baseUrl}}/deliveries/one?deliveryId={{deliveryId}}
+GET {{baseUrl}}/deliveries/one?deliveryId=6c37450c-9fb3-4e7f-991f-6a5a4808418f
 Authorization: Bearer {{token}}
 
 ###

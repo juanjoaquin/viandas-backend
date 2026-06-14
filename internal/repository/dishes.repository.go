@@ -6,11 +6,11 @@ import (
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 )
 
-func (r *repo) SaveDish(ctx context.Context, name, description, menuType string) (*entity.Dish, error) {
+func (r *repo) SaveDish(ctx context.Context, name, description, menuTypeID string) (*entity.Dish, error) {
 	var d entity.Dish
 	err := r.db.QueryRowxContext(ctx,
-		`INSERT INTO dishes (name, description, menu_type) VALUES ($1, $2, $3) RETURNING *`,
-		name, description, menuType,
+		`INSERT INTO dishes (name, description, menu_type_id) VALUES ($1, $2, $3) RETURNING *`,
+		name, description, menuTypeID,
 	).StructScan(&d)
 	if err != nil {
 		return nil, err
@@ -20,13 +20,16 @@ func (r *repo) SaveDish(ctx context.Context, name, description, menuType string)
 
 func (r *repo) GetDishes(ctx context.Context) ([]entity.Dish, error) {
 	var dishes []entity.Dish
-	err := r.db.SelectContext(ctx, &dishes, `SELECT * FROM dishes ORDER BY menu_type, name`)
+	err := r.db.SelectContext(ctx, &dishes, `SELECT * FROM dishes ORDER BY name`)
 	return dishes, err
 }
 
-func (r *repo) GetDishesByMenuType(ctx context.Context, menuType string) ([]entity.Dish, error) {
+func (r *repo) GetDishesByMenuTypeID(ctx context.Context, menuTypeID string) ([]entity.Dish, error) {
 	var dishes []entity.Dish
-	err := r.db.SelectContext(ctx, &dishes, `SELECT * FROM dishes WHERE menu_type = $1 AND active = TRUE ORDER BY name`, menuType)
+	err := r.db.SelectContext(ctx, &dishes,
+		`SELECT * FROM dishes WHERE menu_type_id = $1 AND active = TRUE ORDER BY name`,
+		menuTypeID,
+	)
 	return dishes, err
 }
 

@@ -1,0 +1,50 @@
+### Variables
+@baseUrl = http://localhost:8080
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
+@menuTypeId = <pega_el_id_del_tipo_de_menu>
+
+### ─────────────────────────────
+### MENU TYPES
+### ─────────────────────────────
+
+### Listar tipos de menú (STAFF)
+GET {{baseUrl}}/menu-types
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener tipo de menú por ID
+GET {{baseUrl}}/menu-types/{{menuTypeId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Crear tipo de menú (ADMIN)
+POST {{baseUrl}}/menu-types
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Menú Vegano"
+}
+
+###
+
+### Actualizar tipo de menú (ADMIN)
+PUT {{baseUrl}}/menu-types/{{menuTypeId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Vegetariano",
+  "sort_order": 3,
+  "active": true
+}
+
+###
+
+### Eliminar tipo de menú (ADMIN)
+DELETE {{baseUrl}}/menu-types/{{menuTypeId}}
+Authorization: Bearer {{token}}
+
+###

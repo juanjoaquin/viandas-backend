@@ -1,11 +1,10 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = <pega_tu_token_aqui>
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
 @weekMenuId = <pega_el_id_del_menu_semanal>
 @weekMenuItemId = <pega_el_id_del_item>
-@traditionalDishId = <pega_el_id_del_plato_tradicional>
-@healthyDishId = <pega_el_id_del_plato_saludable>
-@vegetarianDishId = <pega_el_id_del_plato_vegetariano>
+@menuTypeId = <pega_el_id_del_tipo_de_menu>
+@dishId = <pega_el_id_del_plato>
 
 ### ─────────────────────────────
 ### WEEK MENUS
@@ -44,44 +43,27 @@ Authorization: Bearer {{token}}
 ### WEEK MENU ITEMS (días del menú)
 ### ─────────────────────────────
 
-### Agregar día al menú semanal (ADMIN)
-### Requiere IDs de platos ya creados (traditional, healthy, vegetarian)
-POST {{baseUrl}}/week-menus/{{weekMenuId}}/items
+### Agregar línea al menú semanal (ADMIN)
+### Requiere ID del tipo de menú y del plato
+POST {{baseUrl}}/week-menus/b4989ac5-9e44-4550-ab30-15b873703678/items
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
   "menu_date": "2026-06-16",
-  "traditional_dish_id": "{{traditionalDishId}}",
-  "healthy_dish_id": "{{healthyDishId}}",
-  "vegetarian_dish_id": "{{vegetarianDishId}}"
+  "menu_type_id": "7ce56068-fe01-4f49-a37c-fdef40531ef8",
+  "dish_id": "e5a5d556-f71b-4e34-8485-4192f04ac9dd"
 }
 
 ###
 
-### Agregar martes al menú semanal (ADMIN)
-POST {{baseUrl}}/week-menus/{{weekMenuId}}/items
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "menu_date": "2026-06-17",
-  "traditional_dish_id": "{{traditionalDishId}}",
-  "healthy_dish_id": "{{healthyDishId}}",
-  "vegetarian_dish_id": "{{vegetarianDishId}}"
-}
-
-###
-
-### Actualizar item del menú (ADMIN)
+### Actualizar item del menú (cambiar plato, ADMIN)
 PUT {{baseUrl}}/week-menus/{{weekMenuId}}/items/{{weekMenuItemId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "traditional_dish_id": "{{traditionalDishId}}",
-  "healthy_dish_id": "{{healthyDishId}}",
-  "vegetarian_dish_id": "{{vegetarianDishId}}"
+  "dish_id": "{{dishId}}"
 }
 
 ###

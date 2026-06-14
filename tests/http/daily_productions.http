@@ -1,17 +1,19 @@
 ### Variables
 @baseUrl = http://localhost:8080
 @token = <pega_tu_token_aqui>
-@dailyProductionId = <pega_el_id_de_la_produccion>
-@dailyProductionExtraId = <pega_el_id_del_extra>
+@dailyProductionId = <pega_el_id_de_produccion>
 @customerId = <pega_el_id_del_cliente>
-@deliveryId = <pega_el_id_del_delivery>
-@extraProductId = <pega_el_id_del_extra_product>
+@deliveryId = <pega_el_id_del_repartidor>
+@menuTypeId = <pega_el_id_del_tipo_de_menu>
+@extraProductId = <pega_el_id_del_extra>
+@lineId = <pega_el_id_de_la_linea>
+@extraId = <pega_el_id_del_extra_de_produccion>
 
 ### ─────────────────────────────
 ### DAILY PRODUCTIONS
 ### ─────────────────────────────
 
-### Registrar producción diaria (ADMIN o EMPLOYEE)
+### Crear producción diaria (STAFF)
 POST {{baseUrl}}/daily-productions
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -20,25 +22,7 @@ Authorization: Bearer {{token}}
   "production_date": "2026-06-16",
   "customer_id": "{{customerId}}",
   "delivery_id": "{{deliveryId}}",
-  "traditional_qty": 8,
-  "healthy_qty": 2,
-  "vegetarian_qty": 0,
-  "notes": "Entregar antes de las 12"
-}
-
-###
-
-### Registrar producción sin delivery ni notas (ADMIN o EMPLOYEE)
-POST {{baseUrl}}/daily-productions
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "production_date": "2026-06-16",
-  "customer_id": "{{customerId}}",
-  "traditional_qty": 4,
-  "healthy_qty": 0,
-  "vegetarian_qty": 1
+  "notes": "Sin sal"
 }
 
 ###
@@ -55,26 +39,45 @@ Authorization: Bearer {{token}}
 
 ###
 
-### Actualizar producción (ADMIN o EMPLOYEE)
+### Actualizar producción (delivery y notas)
 PUT {{baseUrl}}/daily-productions/{{dailyProductionId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
   "delivery_id": "{{deliveryId}}",
-  "traditional_qty": 10,
-  "healthy_qty": 3,
-  "vegetarian_qty": 1,
-  "notes": "Nota actualizada"
+  "notes": "Sin gluten"
 }
 
 ###
 
 ### ─────────────────────────────
-### EXTRAS DE PRODUCCIÓN
+### LÍNEAS DE CANTIDADES
 ### ─────────────────────────────
 
-### Agregar extra a una producción (ADMIN o EMPLOYEE)
+### Registrar/actualizar cantidad por tipo de menú (STAFF)
+PUT {{baseUrl}}/daily-productions/{{dailyProductionId}}/lines
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "menu_type_id": "{{menuTypeId}}",
+  "quantity": 8
+}
+
+###
+
+### Eliminar línea
+DELETE {{baseUrl}}/daily-productions/{{dailyProductionId}}/lines/{{lineId}}
+Authorization: Bearer {{token}}
+
+###
+
+### ─────────────────────────────
+### EXTRAS
+### ─────────────────────────────
+
+### Agregar extra a producción
 POST {{baseUrl}}/daily-productions/{{dailyProductionId}}/extras
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -86,35 +89,23 @@ Authorization: Bearer {{token}}
 
 ###
 
-### Agregar otro extra a la misma producción
-POST {{baseUrl}}/daily-productions/{{dailyProductionId}}/extras
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "extra_product_id": "{{extraProductId}}",
-  "quantity": 1
-}
-
-###
-
-### Eliminar extra de una producción
-DELETE {{baseUrl}}/daily-productions/{{dailyProductionId}}/extras/{{dailyProductionExtraId}}
+### Eliminar extra
+DELETE {{baseUrl}}/daily-productions/{{dailyProductionId}}/extras/{{extraId}}
 Authorization: Bearer {{token}}
 
 ###
 
 ### ─────────────────────────────
-### TOTALES / CONSULTAS ESPECIALES
+### TOTALES
 ### ─────────────────────────────
 
-### Totales de cocina del día (suma por tipo de menú)
+### Totales de cocina del día (por tipo de menú)
 GET {{baseUrl}}/daily-productions/totals/kitchen?date=2026-06-16
 Authorization: Bearer {{token}}
 
 ###
 
-### Totales de extras del día (agrupados por producto)
+### Totales de extras del día
 GET {{baseUrl}}/daily-productions/totals/extras?date=2026-06-16
 Authorization: Bearer {{token}}
 

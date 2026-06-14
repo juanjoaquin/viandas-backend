@@ -28,7 +28,7 @@ func (h *DishHandler) Create(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	dish, err := h.serv.CreateDish(ctx, params.Name, params.Description, params.MenuType)
+	dish, err := h.serv.CreateDish(ctx, params.Name, params.Description, params.MenuTypeID)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -44,9 +44,9 @@ func (h *DishHandler) GetAll(c *echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	menuType := c.QueryParam("menu_type")
-	if menuType != "" {
-		dishes, err := h.serv.GetDishesByMenuType(ctx, menuType)
+	menuTypeID := c.QueryParam("menu_type_id")
+	if menuTypeID != "" {
+		dishes, err := h.serv.GetDishesByMenuTypeID(ctx, menuTypeID)
 		if err != nil {
 			log.Println(err)
 			return respond(c, http.StatusInternalServerError, err.Error(), nil)

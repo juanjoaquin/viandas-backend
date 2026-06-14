@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = <pega_tu_token_aqui>
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
 @customerId = <pega_el_id_del_cliente>
 
 ### ─────────────────────────────
@@ -10,10 +10,10 @@
 ### Crear cliente sin teléfono ni dirección (ADMIN)
 POST {{baseUrl}}/customers
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjQ0MjJhODEtNTNhNi00NmMwLWJiYTEtNTY0NzllYjg5NGFjIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDI4NDMsImlhdCI6MTc4MTQ1NjQ0M30.qClA-gz8vmXJ1bHUwrzOcu-CTsF9t2sMm0Wc8VX-i68
+Authorization: Bearer {{token}}
 
 {
-  "name": "Cliente Nuevo",
+  "name": "Aluar",
   "type": "COMPANY",
   "phone": "2804207744",
   "address": "Ruta 4"
@@ -51,13 +51,13 @@ Authorization: Bearer {{token}}
 
 ### Listar todos los clientes
 GET {{baseUrl}}/customers
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjQ0MjJhODEtNTNhNi00NmMwLWJiYTEtNTY0NzllYjg5NGFjIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDUzMTcsImlhdCI6MTc4MTQ1ODkxN30.ymKnjLlz4v67hDzUd6Sn-Z5lcG1bUMgl1pYjjpj1M1k
+Authorization: Bearer {{token}}
 
 ###
 
 ### Obtener cliente por ID
-GET {{baseUrl}}/customers/one?customerId=dbf04269-2ca7-4794-9a0c-c8e118c81be9
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjQ0MjJhODEtNTNhNi00NmMwLWJiYTEtNTY0NzllYjg5NGFjIiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDUzMTcsImlhdCI6MTc4MTQ1ODkxN30.ymKnjLlz4v67hDzUd6Sn-Z5lcG1bUMgl1pYjjpj1M1k
+GET {{baseUrl}}/customers/one?customerId=a07d734c-8f6c-456e-aad7-656ac9e749b6
+Authorization: Bearer {{token}}
 
 ###
 

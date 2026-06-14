@@ -35,8 +35,7 @@ func (h *DailyProductionHandler) Create(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
 	}
 
-	dp, err := h.serv.CreateDailyProduction(ctx, productionDate, params.CustomerID, params.DeliveryID,
-		params.TraditionalQty, params.HealthyQty, params.VegetarianQty, params.Notes, claims.UserID)
+	dp, err := h.serv.CreateDailyProduction(ctx, productionDate, params.CustomerID, params.DeliveryID, params.Notes, claims.UserID)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -102,7 +101,7 @@ func (h *DailyProductionHandler) Update(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	if err := h.serv.UpdateDailyProduction(ctx, id, params.DeliveryID, params.TraditionalQty, params.HealthyQty, params.VegetarianQty, params.Notes); err != nil {
+	if err := h.serv.UpdateDailyProduction(ctx, id, params.DeliveryID, params.Notes); err != nil {
 		if err == service.ErrDailyProductionNotFound {
 			return respond(c, http.StatusNotFound, "daily production not found", nil)
 		}
@@ -111,6 +110,44 @@ func (h *DailyProductionHandler) Update(c *echo.Context) error {
 	}
 
 	return respond(c, http.StatusOK, "daily production updated", nil)
+}
+
+func (h *DailyProductionHandler) UpsertLine(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	id := c.Param("id")
+
+	var params dtos.UpsertDailyProductionLine
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	line, err := h.serv.UpsertDailyProductionLine(ctx, id, params.MenuTypeID, params.Quantity)
+	if err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "line updated", line)
+}
+
+func (h *DailyProductionHandler) DeleteLine(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	lineID := c.Param("lineId")
+
+	if err := h.serv.DeleteDailyProductionLine(ctx, lineID); err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "line deleted", nil)
 }
 
 func (h *DailyProductionHandler) AddExtra(c *echo.Context) error {

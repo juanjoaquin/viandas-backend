@@ -10,6 +10,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	userH := handlers.NewUserHandler(serv)
 	customerH := handlers.NewCustomerHandler(serv)
 	deliveryH := handlers.NewDeliveryHandler(serv)
+	menuTypeH := handlers.NewMenuTypeHandler(serv)
 	dishH := handlers.NewDishHandler(serv)
 	extraH := handlers.NewExtraProductHandler(serv)
 	weekMenuH := handlers.NewWeekMenuHandler(serv)
@@ -37,10 +38,18 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	deliveries.PUT("/:id", deliveryH.Update)
 	deliveries.DELETE("/:id", deliveryH.Delete)
 
+	// Menu Types
+	menuTypes := e.Group("/menu-types")
+	menuTypes.POST("", menuTypeH.Create)
+	menuTypes.GET("", menuTypeH.GetAll)
+	menuTypes.GET("/:id", menuTypeH.GetByID)
+	menuTypes.PUT("/:id", menuTypeH.Update)
+	menuTypes.DELETE("/:id", menuTypeH.Delete)
+
 	// Dishes
 	dishes := e.Group("/dishes")
 	dishes.POST("", dishH.Create)
-	dishes.GET("", dishH.GetAll) // ?menu_type=TRADITIONAL|HEALTHY|VEGETARIAN
+	dishes.GET("", dishH.GetAll) // ?menu_type_id=<uuid>
 	dishes.GET("/one", dishH.GetByID)
 	dishes.PUT("/:id", dishH.Update)
 	dishes.DELETE("/:id", dishH.Delete)
@@ -66,11 +75,13 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	// Daily Productions
 	daily := e.Group("/daily-productions")
 	daily.POST("", dailyH.Create)
-	daily.GET("", dailyH.GetByDate)           // ?date=2026-06-16
-	daily.GET("/totals/kitchen", dailyH.GetKitchenTotals) // ?date=2026-06-16
-	daily.GET("/totals/extras", dailyH.GetExtrasTotals)   // ?date=2026-06-16
+	daily.GET("", dailyH.GetByDate)                         // ?date=2026-06-16
+	daily.GET("/totals/kitchen", dailyH.GetKitchenTotals)   // ?date=2026-06-16
+	daily.GET("/totals/extras", dailyH.GetExtrasTotals)     // ?date=2026-06-16
 	daily.GET("/one", dailyH.GetByID)
 	daily.PUT("/:id", dailyH.Update)
+	daily.PUT("/:id/lines", dailyH.UpsertLine)
+	daily.DELETE("/:id/lines/:lineId", dailyH.DeleteLine)
 	daily.POST("/:id/extras", dailyH.AddExtra)
 	daily.DELETE("/:id/extras/:extraId", dailyH.DeleteExtra)
 }

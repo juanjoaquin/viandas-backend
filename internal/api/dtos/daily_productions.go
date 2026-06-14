@@ -4,18 +4,17 @@ type CreateDailyProduction struct {
 	ProductionDate string `json:"production_date" validate:"required"`
 	CustomerID     string `json:"customer_id"     validate:"required"`
 	DeliveryID     string `json:"delivery_id"`
-	TraditionalQty int    `json:"traditional_qty" validate:"min=0"`
-	HealthyQty     int    `json:"healthy_qty"     validate:"min=0"`
-	VegetarianQty  int    `json:"vegetarian_qty"  validate:"min=0"`
 	Notes          string `json:"notes"`
 }
 
 type UpdateDailyProduction struct {
-	DeliveryID     string `json:"delivery_id"`
-	TraditionalQty int    `json:"traditional_qty" validate:"min=0"`
-	HealthyQty     int    `json:"healthy_qty"     validate:"min=0"`
-	VegetarianQty  int    `json:"vegetarian_qty"  validate:"min=0"`
-	Notes          string `json:"notes"`
+	DeliveryID string `json:"delivery_id"`
+	Notes      string `json:"notes"`
+}
+
+type UpsertDailyProductionLine struct {
+	MenuTypeID string `json:"menu_type_id" validate:"required"`
+	Quantity   int    `json:"quantity"     validate:"min=0"`
 }
 
 type AddDailyProductionExtra struct {

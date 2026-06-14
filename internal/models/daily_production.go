@@ -1,17 +1,21 @@
 package models
 
 type DailyProduction struct {
-	ID             string                  `json:"id"`
-	ProductionDate string                  `json:"production_date"`
-	Customer       *Customer               `json:"customer,omitempty"`
-	Delivery       *Delivery               `json:"delivery,omitempty"`
-	TraditionalQty int                     `json:"traditional_qty"`
-	HealthyQty     int                     `json:"healthy_qty"`
-	VegetarianQty  int                     `json:"vegetarian_qty"`
-	Notes          string                  `json:"notes,omitempty"`
-	Extras         []DailyProductionExtra  `json:"extras,omitempty"`
-	CreatedBy      string                  `json:"created_by"`
-	CreatedAt      string                  `json:"created_at"`
+	ID             string                 `json:"id"`
+	ProductionDate string                 `json:"production_date"`
+	Customer       *Customer              `json:"customer,omitempty"`
+	Delivery       *Delivery              `json:"delivery,omitempty"`
+	Lines          []DailyProductionLine  `json:"lines,omitempty"`
+	Notes          string                 `json:"notes,omitempty"`
+	Extras         []DailyProductionExtra `json:"extras,omitempty"`
+	CreatedBy      string                 `json:"created_by"`
+	CreatedAt      string                 `json:"created_at"`
+}
+
+type DailyProductionLine struct {
+	ID          string    `json:"id"`
+	MenuType    *MenuType `json:"menu_type,omitempty"`
+	Quantity    int       `json:"quantity"`
 }
 
 type DailyProductionExtra struct {
@@ -21,10 +25,13 @@ type DailyProductionExtra struct {
 }
 
 type KitchenTotals struct {
-	Date           string `json:"date"`
-	TraditionalQty int    `json:"traditional_qty"`
-	HealthyQty     int    `json:"healthy_qty"`
-	VegetarianQty  int    `json:"vegetarian_qty"`
+	Date   string             `json:"date"`
+	Totals []MenuTypeTotalQty `json:"totals"`
+}
+
+type MenuTypeTotalQty struct {
+	MenuType *MenuType `json:"menu_type"`
+	TotalQty int       `json:"total_qty"`
 }
 
 type ExtraTotals struct {

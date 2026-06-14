@@ -29,10 +29,17 @@ type Service interface {
 	UpdateDelivery(ctx context.Context, id, name string, phone *string, active bool) error
 	DeleteDelivery(ctx context.Context, id string) error
 
+	// MenuTypes
+	CreateMenuType(ctx context.Context, name string, sortOrder int) (*models.MenuType, error)
+	GetMenuTypes(ctx context.Context) ([]models.MenuType, error)
+	GetMenuTypeByID(ctx context.Context, id string) (*models.MenuType, error)
+	UpdateMenuType(ctx context.Context, id, name string, sortOrder int, active bool) error
+	DeleteMenuType(ctx context.Context, id string) error
+
 	// Dishes
-	CreateDish(ctx context.Context, name, description, menuType string) (*models.Dish, error)
+	CreateDish(ctx context.Context, name, description, menuTypeID string) (*models.Dish, error)
 	GetDishes(ctx context.Context) ([]models.Dish, error)
-	GetDishesByMenuType(ctx context.Context, menuType string) ([]models.Dish, error)
+	GetDishesByMenuTypeID(ctx context.Context, menuTypeID string) ([]models.Dish, error)
 	GetDishByID(ctx context.Context, id string) (*models.Dish, error)
 	UpdateDish(ctx context.Context, id, name, description string, active bool) error
 	DeleteDish(ctx context.Context, id string) error
@@ -48,15 +55,17 @@ type Service interface {
 	CreateWeekMenu(ctx context.Context, weekStartDate time.Time, createdBy string) (*models.WeekMenu, error)
 	GetWeekMenus(ctx context.Context) ([]models.WeekMenu, error)
 	GetWeekMenuByID(ctx context.Context, id string) (*models.WeekMenu, error)
-	AddWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, traditionalDishID, healthyDishID, vegetarianDishID string) (*models.WeekMenuItem, error)
-	UpdateWeekMenuItem(ctx context.Context, id, traditionalDishID, healthyDishID, vegetarianDishID string) error
+	AddWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, menuTypeID, dishID string) (*models.WeekMenuItem, error)
+	UpdateWeekMenuItem(ctx context.Context, id, dishID string) error
 	DeleteWeekMenuItem(ctx context.Context, id string) error
 
 	// DailyProductions
-	CreateDailyProduction(ctx context.Context, productionDate time.Time, customerID, deliveryID string, traditionalQty, healthyQty, vegetarianQty int, notes, createdBy string) (*models.DailyProduction, error)
+	CreateDailyProduction(ctx context.Context, productionDate time.Time, customerID, deliveryID, notes, createdBy string) (*models.DailyProduction, error)
 	GetDailyProductions(ctx context.Context, date time.Time) ([]models.DailyProduction, error)
 	GetDailyProductionByID(ctx context.Context, id string) (*models.DailyProduction, error)
-	UpdateDailyProduction(ctx context.Context, id, deliveryID string, traditionalQty, healthyQty, vegetarianQty int, notes string) error
+	UpdateDailyProduction(ctx context.Context, id, deliveryID, notes string) error
+	UpsertDailyProductionLine(ctx context.Context, dailyProductionID, menuTypeID string, quantity int) (*models.DailyProductionLine, error)
+	DeleteDailyProductionLine(ctx context.Context, id string) error
 	AddDailyProductionExtra(ctx context.Context, dailyProductionID, extraProductID string, quantity int) (*models.DailyProductionExtra, error)
 	DeleteDailyProductionExtra(ctx context.Context, id string) error
 

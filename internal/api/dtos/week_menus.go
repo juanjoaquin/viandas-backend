@@ -5,14 +5,11 @@ type CreateWeekMenu struct {
 }
 
 type AddWeekMenuItem struct {
-	MenuDate          string `json:"menu_date"           validate:"required"`
-	TraditionalDishID string `json:"traditional_dish_id" validate:"required"`
-	HealthyDishID     string `json:"healthy_dish_id"     validate:"required"`
-	VegetarianDishID  string `json:"vegetarian_dish_id"  validate:"required"`
+	MenuDate    string `json:"menu_date"    validate:"required"`
+	MenuTypeID  string `json:"menu_type_id" validate:"required"`
+	DishID      string `json:"dish_id"      validate:"required"`
 }
 
 type UpdateWeekMenuItem struct {
-	TraditionalDishID string `json:"traditional_dish_id" validate:"required"`
-	HealthyDishID     string `json:"healthy_dish_id"     validate:"required"`
-	VegetarianDishID  string `json:"vegetarian_dish_id"  validate:"required"`
+	DishID string `json:"dish_id" validate:"required"`
 }

@@ -1,9 +1,9 @@
 package dtos
 
 type CreateDish struct {
-	Name        string `json:"name"        validate:"required,min=2"`
+	Name        string `json:"name"         validate:"required,min=2"`
 	Description string `json:"description"`
-	MenuType    string `json:"menu_type"   validate:"required,oneof=TRADITIONAL HEALTHY VEGETARIAN"`
+	MenuTypeID  string `json:"menu_type_id" validate:"required"`
 }
 
 type UpdateDish struct {

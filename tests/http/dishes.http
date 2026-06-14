@@ -1,47 +1,23 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = <pega_tu_token_aqui>
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
 @dishId = <pega_el_id_del_plato>
+@menuTypeId = <pega_el_id_del_tipo_de_menu>
 
 ### ─────────────────────────────
 ### DISHES
 ### ─────────────────────────────
 
-### Crear plato TRADITIONAL (ADMIN)
+### Crear plato (ADMIN)
+### Requiere menu_type_id: obtenerlo desde GET /menu-types
 POST {{baseUrl}}/dishes
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Milanesa con puré",
-  "description": "Milanesa de carne con puré de papas",
-  "menu_type": "TRADITIONAL"
-}
-
-###
-
-### Crear plato HEALTHY (ADMIN)
-POST {{baseUrl}}/dishes
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "name": "Tarta de jamón y queso",
-  "description": "Tarta integral con jamón y queso",
-  "menu_type": "HEALTHY"
-}
-
-###
-
-### Crear plato VEGETARIAN (ADMIN)
-POST {{baseUrl}}/dishes
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "name": "Risotto de hongos",
-  "description": "Risotto cremoso con hongos salteados",
-  "menu_type": "VEGETARIAN"
+  "name": "Pastel de calabaza",
+  "description": "Pastel de calabaza con queso y huevo",
+  "menu_type_id": "55179510-1f80-4ad4-900f-e11c7fefbb05"
 }
 
 ###
@@ -52,20 +28,8 @@ Authorization: Bearer {{token}}
 
 ###
 
-### Listar platos por tipo — TRADITIONAL
-GET {{baseUrl}}/dishes?menu_type=TRADITIONAL
-Authorization: Bearer {{token}}
-
-###
-
-### Listar platos por tipo — HEALTHY
-GET {{baseUrl}}/dishes?menu_type=HEALTHY
-Authorization: Bearer {{token}}
-
-###
-
-### Listar platos por tipo — VEGETARIAN
-GET {{baseUrl}}/dishes?menu_type=VEGETARIAN
+### Listar platos por tipo de menú
+GET {{baseUrl}}/dishes?menu_type_id=55179510-1f80-4ad4-900f-e11c7fefbb05
 Authorization: Bearer {{token}}
 
 ###
@@ -82,22 +46,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Milanesa con puré actualizada",
-  "description": "Descripción actualizada",
+  "name": "Milanesa con puré de zapallo",
+  "description": "Milanesa de carne con puré de zapallo",
   "active": true
-}
-
-###
-
-### Desactivar plato (ADMIN)
-PUT {{baseUrl}}/dishes/{{dishId}}
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "name": "Milanesa con puré",
-  "description": "Milanesa de carne",
-  "active": false
 }
 
 ###

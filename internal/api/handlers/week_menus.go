@@ -99,7 +99,7 @@ func (h *WeekMenuHandler) AddItem(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
 	}
 
-	item, err := h.serv.AddWeekMenuItem(ctx, weekMenuID, menuDate, params.TraditionalDishID, params.HealthyDishID, params.VegetarianDishID)
+	item, err := h.serv.AddWeekMenuItem(ctx, weekMenuID, menuDate, params.MenuTypeID, params.DishID)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -121,7 +121,7 @@ func (h *WeekMenuHandler) UpdateItem(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	if err := h.serv.UpdateWeekMenuItem(ctx, itemID, params.TraditionalDishID, params.HealthyDishID, params.VegetarianDishID); err != nil {
+	if err := h.serv.UpdateWeekMenuItem(ctx, itemID, params.DishID); err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
