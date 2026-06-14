@@ -16,10 +16,10 @@ type Service interface {
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 
 	// Customers
-	CreateCustomer(ctx context.Context, name, customerType, phone, address string) (*models.Customer, error)
+	CreateCustomer(ctx context.Context, name, customerType string, phone, address *string) (*models.Customer, error)
 	GetCustomers(ctx context.Context) ([]models.Customer, error)
 	GetCustomerByID(ctx context.Context, id string) (*models.Customer, error)
-	UpdateCustomer(ctx context.Context, id, name, customerType, phone, address string) error
+	UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error
 	DeleteCustomer(ctx context.Context, id string) error
 
 	// Deliveries

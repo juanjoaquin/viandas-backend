@@ -17,6 +17,13 @@ func NewCustomerHandler(serv service.Service) *CustomerHandler {
 	return &CustomerHandler{serv: serv}
 }
 
+func optionalString(s *string) *string {
+	if s == nil || *s == "" {
+		return nil
+	}
+	return s
+}
+
 func (h *CustomerHandler) Create(c *echo.Context) error {
 	if _, err := requireAdmin(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
@@ -28,7 +35,7 @@ func (h *CustomerHandler) Create(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	customer, err := h.serv.CreateCustomer(ctx, params.Name, params.Type, params.Phone, params.Address)
+	customer, err := h.serv.CreateCustomer(ctx, params.Name, params.Type, optionalString(params.Phone), optionalString(params.Address))
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -58,7 +65,10 @@ func (h *CustomerHandler) GetByID(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
+	id := c.QueryParam("customerId")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "customerId is required", nil)
+	}
 
 	customer, err := h.serv.GetCustomerByID(ctx, id)
 	if err != nil {
@@ -84,7 +94,7 @@ func (h *CustomerHandler) Update(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	if err := h.serv.UpdateCustomer(ctx, id, params.Name, params.Type, params.Phone, params.Address); err != nil {
+	if err := h.serv.UpdateCustomer(ctx, id, params.Name, params.Type, optionalString(params.Phone), optionalString(params.Address)); err != nil {
 		if err == service.ErrCustomerNotFound {
 			return respond(c, http.StatusNotFound, "customer not found", nil)
 		}

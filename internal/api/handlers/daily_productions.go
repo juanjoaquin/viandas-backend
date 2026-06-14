@@ -73,7 +73,10 @@ func (h *DailyProductionHandler) GetByID(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
+	id := c.QueryParam("dailyProductionId")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "dailyProductionId is required", nil)
+	}
 
 	dp, err := h.serv.GetDailyProductionByID(ctx, id)
 	if err != nil {

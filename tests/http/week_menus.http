@@ -29,7 +29,7 @@ Authorization: Bearer {{token}}
 ###
 
 ### Obtener menú semanal por ID (incluye items con platos)
-GET {{baseUrl}}/week-menus/{{weekMenuId}}
+GET {{baseUrl}}/week-menus/one?weekMenuId={{weekMenuId}}
 Authorization: Bearer {{token}}
 
 ###

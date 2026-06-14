@@ -9,7 +9,7 @@ import (
 
 var ErrCustomerNotFound = errors.New("customer not found")
 
-func (s *serv) CreateCustomer(ctx context.Context, name, customerType, phone, address string) (*models.Customer, error) {
+func (s *serv) CreateCustomer(ctx context.Context, name, customerType string, phone, address *string) (*models.Customer, error) {
 	c, err := s.repo.SaveCustomer(ctx, name, customerType, phone, address)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (s *serv) GetCustomerByID(ctx context.Context, id string) (*models.Customer
 	}, nil
 }
 
-func (s *serv) UpdateCustomer(ctx context.Context, id, name, customerType, phone, address string) error {
+func (s *serv) UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error {
 	_, err := s.repo.GetCustomerByID(ctx, id)
 	if err != nil {
 		return ErrCustomerNotFound

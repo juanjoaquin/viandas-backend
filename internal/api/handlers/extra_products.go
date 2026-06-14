@@ -58,7 +58,10 @@ func (h *ExtraProductHandler) GetByID(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
+	id := c.QueryParam("extraProductId")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "extraProductId is required", nil)
+	}
 
 	product, err := h.serv.GetExtraProductByID(ctx, id)
 	if err != nil {

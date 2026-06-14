@@ -62,7 +62,7 @@ Authorization: Bearer {{token}}
 ###
 
 ### Obtener extra por ID
-GET {{baseUrl}}/extra-products/{{extraProductId}}
+GET {{baseUrl}}/extra-products/one?extraProductId={{extraProductId}}
 Authorization: Bearer {{token}}
 
 ###

@@ -6,7 +6,7 @@ import (
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 )
 
-func (r *repo) SaveCustomer(ctx context.Context, name, customerType, phone, address string) (*entity.Customer, error) {
+func (r *repo) SaveCustomer(ctx context.Context, name, customerType string, phone, address *string) (*entity.Customer, error) {
 	var c entity.Customer
 	err := r.db.QueryRowxContext(ctx,
 		`INSERT INTO customers (name, type, phone, address) VALUES ($1, $2, $3, $4) RETURNING *`,
@@ -33,7 +33,7 @@ func (r *repo) GetCustomerByID(ctx context.Context, id string) (*entity.Customer
 	return &c, nil
 }
 
-func (r *repo) UpdateCustomer(ctx context.Context, id, name, customerType, phone, address string) error {
+func (r *repo) UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error {
 	_, err := r.db.ExecContext(ctx,
 		`UPDATE customers SET name=$1, type=$2, phone=$3, address=$4, updated_at=NOW() WHERE id=$5`,
 		name, customerType, phone, address, id,

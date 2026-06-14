@@ -16,10 +16,10 @@ type Repository interface {
 	GetUserByID(ctx context.Context, id string) (*entity.User, error)
 
 	// Customers
-	SaveCustomer(ctx context.Context, name, customerType, phone, address string) (*entity.Customer, error)
+	SaveCustomer(ctx context.Context, name, customerType string, phone, address *string) (*entity.Customer, error)
 	GetCustomers(ctx context.Context) ([]entity.Customer, error)
 	GetCustomerByID(ctx context.Context, id string) (*entity.Customer, error)
-	UpdateCustomer(ctx context.Context, id, name, customerType, phone, address string) error
+	UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error
 	DeleteCustomer(ctx context.Context, id string) error
 
 	// Deliveries

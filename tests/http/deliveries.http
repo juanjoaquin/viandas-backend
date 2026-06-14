@@ -36,7 +36,7 @@ Authorization: Bearer {{token}}
 ###
 
 ### Obtener delivery por ID
-GET {{baseUrl}}/deliveries/{{deliveryId}}
+GET {{baseUrl}}/deliveries/one?deliveryId={{deliveryId}}
 Authorization: Bearer {{token}}
 
 ###

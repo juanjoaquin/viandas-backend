@@ -58,7 +58,10 @@ func (h *DeliveryHandler) GetByID(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
+	id := c.QueryParam("deliveryId")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "deliveryId is required", nil)
+	}
 
 	delivery, err := h.serv.GetDeliveryByID(ctx, id)
 	if err != nil {

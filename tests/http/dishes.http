@@ -71,7 +71,7 @@ Authorization: Bearer {{token}}
 ###
 
 ### Obtener plato por ID
-GET {{baseUrl}}/dishes/{{dishId}}
+GET {{baseUrl}}/dishes/one?dishId={{dishId}}
 Authorization: Bearer {{token}}
 
 ###

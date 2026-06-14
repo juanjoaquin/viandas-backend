@@ -69,7 +69,10 @@ func (h *DishHandler) GetByID(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
+	id := c.QueryParam("dishId")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "dishId is required", nil)
+	}
 
 	dish, err := h.serv.GetDishByID(ctx, id)
 	if err != nil {

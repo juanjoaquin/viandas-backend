@@ -65,7 +65,10 @@ func (h *WeekMenuHandler) GetByID(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
+	id := c.QueryParam("weekMenuId")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "weekMenuId is required", nil)
+	}
 
 	menu, err := h.serv.GetWeekMenuByID(ctx, id)
 	if err != nil {

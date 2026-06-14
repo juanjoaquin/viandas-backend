@@ -25,7 +25,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	customers := e.Group("/customers")
 	customers.POST("", customerH.Create)
 	customers.GET("", customerH.GetAll)
-	customers.GET("/:id", customerH.GetByID)
+	customers.GET("/one", customerH.GetByID)
 	customers.PUT("/:id", customerH.Update)
 	customers.DELETE("/:id", customerH.Delete)
 
@@ -33,7 +33,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	deliveries := e.Group("/deliveries")
 	deliveries.POST("", deliveryH.Create)
 	deliveries.GET("", deliveryH.GetAll)
-	deliveries.GET("/:id", deliveryH.GetByID)
+	deliveries.GET("/one", deliveryH.GetByID)
 	deliveries.PUT("/:id", deliveryH.Update)
 	deliveries.DELETE("/:id", deliveryH.Delete)
 
@@ -41,7 +41,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	dishes := e.Group("/dishes")
 	dishes.POST("", dishH.Create)
 	dishes.GET("", dishH.GetAll) // ?menu_type=TRADITIONAL|HEALTHY|VEGETARIAN
-	dishes.GET("/:id", dishH.GetByID)
+	dishes.GET("/one", dishH.GetByID)
 	dishes.PUT("/:id", dishH.Update)
 	dishes.DELETE("/:id", dishH.Delete)
 
@@ -49,7 +49,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	extras := e.Group("/extra-products")
 	extras.POST("", extraH.Create)
 	extras.GET("", extraH.GetAll)
-	extras.GET("/:id", extraH.GetByID)
+	extras.GET("/one", extraH.GetByID)
 	extras.PUT("/:id", extraH.Update)
 	extras.DELETE("/:id", extraH.Delete)
 
@@ -58,7 +58,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	weekMenus.POST("", weekMenuH.Create)
 	weekMenus.GET("", weekMenuH.GetAll)
 	weekMenus.GET("/menu", weekMenuH.GetMenuByDate) // ?date=2026-06-16
-	weekMenus.GET("/:id", weekMenuH.GetByID)
+	weekMenus.GET("/one", weekMenuH.GetByID)
 	weekMenus.POST("/:id/items", weekMenuH.AddItem)
 	weekMenus.PUT("/:id/items/:itemId", weekMenuH.UpdateItem)
 	weekMenus.DELETE("/:id/items/:itemId", weekMenuH.DeleteItem)
@@ -69,7 +69,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	daily.GET("", dailyH.GetByDate)           // ?date=2026-06-16
 	daily.GET("/totals/kitchen", dailyH.GetKitchenTotals) // ?date=2026-06-16
 	daily.GET("/totals/extras", dailyH.GetExtrasTotals)   // ?date=2026-06-16
-	daily.GET("/:id", dailyH.GetByID)
+	daily.GET("/one", dailyH.GetByID)
 	daily.PUT("/:id", dailyH.Update)
 	daily.POST("/:id/extras", dailyH.AddExtra)
 	daily.DELETE("/:id/extras/:extraId", dailyH.DeleteExtra)
