@@ -13,7 +13,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Juan"
+  "name": "Juan",
+  "phone": "2804207744"
 }
 
 ###
@@ -48,6 +49,7 @@ Authorization: Bearer {{token}}
 
 {
   "name": "Juan P.",
+  "phone": "2804207744",
   "active": true
 }
 
@@ -60,6 +62,7 @@ Authorization: Bearer {{token}}
 
 {
   "name": "Juan P.",
+  "phone": "2804207744",
   "active": false
 }
 

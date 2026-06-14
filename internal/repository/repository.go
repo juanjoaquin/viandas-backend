@@ -23,10 +23,10 @@ type Repository interface {
 	DeleteCustomer(ctx context.Context, id string) error
 
 	// Deliveries
-	SaveDelivery(ctx context.Context, name string) (*entity.Delivery, error)
+	SaveDelivery(ctx context.Context, name string, phone *string) (*entity.Delivery, error)
 	GetDeliveries(ctx context.Context) ([]entity.Delivery, error)
 	GetDeliveryByID(ctx context.Context, id string) (*entity.Delivery, error)
-	UpdateDelivery(ctx context.Context, id, name string, active bool) error
+	UpdateDelivery(ctx context.Context, id, name string, phone *string, active bool) error
 	DeleteDelivery(ctx context.Context, id string) error
 
 	// Dishes

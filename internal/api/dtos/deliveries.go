@@ -1,10 +1,12 @@
 package dtos
 
 type CreateDelivery struct {
-	Name string `json:"name" validate:"required,min=2"`
+	Name  string  `json:"name" validate:"required,min=2"`
+	Phone *string `json:"phone"`
 }
 
 type UpdateDelivery struct {
-	Name   string `json:"name"   validate:"required,min=2"`
-	Active bool   `json:"active"`
+	Name   string  `json:"name"   validate:"required,min=2"`
+	Phone  *string `json:"phone"`
+	Active bool    `json:"active"`
 }

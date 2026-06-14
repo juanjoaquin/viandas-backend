@@ -6,11 +6,11 @@ import (
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 )
 
-func (r *repo) SaveDelivery(ctx context.Context, name string) (*entity.Delivery, error) {
+func (r *repo) SaveDelivery(ctx context.Context, name string, phone *string) (*entity.Delivery, error) {
 	var d entity.Delivery
 	err := r.db.QueryRowxContext(ctx,
-		`INSERT INTO deliveries (name) VALUES ($1) RETURNING *`,
-		name,
+		`INSERT INTO deliveries (name, phone) VALUES ($1, $2) RETURNING *`,
+		name, phone,
 	).StructScan(&d)
 	if err != nil {
 		return nil, err
@@ -33,10 +33,10 @@ func (r *repo) GetDeliveryByID(ctx context.Context, id string) (*entity.Delivery
 	return &d, nil
 }
 
-func (r *repo) UpdateDelivery(ctx context.Context, id, name string, active bool) error {
+func (r *repo) UpdateDelivery(ctx context.Context, id, name string, phone *string, active bool) error {
 	_, err := r.db.ExecContext(ctx,
-		`UPDATE deliveries SET name=$1, active=$2, updated_at=NOW() WHERE id=$3`,
-		name, active, id,
+		`UPDATE deliveries SET name=$1, phone=$2, active=$3, updated_at=NOW() WHERE id=$4`,
+		name, phone, active, id,
 	)
 	return err
 }

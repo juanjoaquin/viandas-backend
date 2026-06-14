@@ -9,14 +9,15 @@ import (
 
 var ErrDeliveryNotFound = errors.New("delivery not found")
 
-func (s *serv) CreateDelivery(ctx context.Context, name string) (*models.Delivery, error) {
-	d, err := s.repo.SaveDelivery(ctx, name)
+func (s *serv) CreateDelivery(ctx context.Context, name string, phone *string) (*models.Delivery, error) {
+	d, err := s.repo.SaveDelivery(ctx, name, phone)
 	if err != nil {
 		return nil, err
 	}
 	return &models.Delivery{
 		ID:        d.ID,
 		Name:      d.Name,
+		Phone:     d.Phone,
 		Active:    d.Active,
 		CreatedAt: d.CreatedAt.Format("2006-01-02T15:04:05Z"),
 	}, nil
@@ -33,6 +34,7 @@ func (s *serv) GetDeliveries(ctx context.Context) ([]models.Delivery, error) {
 		deliveries[i] = models.Delivery{
 			ID:        d.ID,
 			Name:      d.Name,
+			Phone:     d.Phone,
 			Active:    d.Active,
 			CreatedAt: d.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		}
@@ -48,17 +50,18 @@ func (s *serv) GetDeliveryByID(ctx context.Context, id string) (*models.Delivery
 	return &models.Delivery{
 		ID:        d.ID,
 		Name:      d.Name,
+		Phone:     d.Phone,
 		Active:    d.Active,
 		CreatedAt: d.CreatedAt.Format("2006-01-02T15:04:05Z"),
 	}, nil
 }
 
-func (s *serv) UpdateDelivery(ctx context.Context, id, name string, active bool) error {
+func (s *serv) UpdateDelivery(ctx context.Context, id, name string, phone *string, active bool) error {
 	_, err := s.repo.GetDeliveryByID(ctx, id)
 	if err != nil {
 		return ErrDeliveryNotFound
 	}
-	return s.repo.UpdateDelivery(ctx, id, name, active)
+	return s.repo.UpdateDelivery(ctx, id, name, phone, active)
 }
 
 func (s *serv) DeleteDelivery(ctx context.Context, id string) error {

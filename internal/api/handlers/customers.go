@@ -17,13 +17,6 @@ func NewCustomerHandler(serv service.Service) *CustomerHandler {
 	return &CustomerHandler{serv: serv}
 }
 
-func optionalString(s *string) *string {
-	if s == nil || *s == "" {
-		return nil
-	}
-	return s
-}
-
 func (h *CustomerHandler) Create(c *echo.Context) error {
 	if _, err := requireAdmin(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)

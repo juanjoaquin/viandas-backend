@@ -45,7 +45,7 @@ func (s *serv) GetDailyProductions(ctx context.Context, date time.Time) ([]model
 		if dp.DeliveryID != "" {
 			delivery, _ := s.repo.GetDeliveryByID(ctx, dp.DeliveryID)
 			if delivery != nil {
-				deliveryModel = &models.Delivery{ID: delivery.ID, Name: delivery.Name}
+				deliveryModel = &models.Delivery{ID: delivery.ID, Name: delivery.Name, Phone: delivery.Phone}
 			}
 		}
 
