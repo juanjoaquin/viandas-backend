@@ -1,0 +1,109 @@
+### Variables
+@baseUrl = http://localhost:8080
+@token = <pega_tu_token_aqui>
+@dishId = <pega_el_id_del_plato>
+
+### ─────────────────────────────
+### DISHES
+### ─────────────────────────────
+
+### Crear plato TRADITIONAL (ADMIN)
+POST {{baseUrl}}/dishes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Milanesa con puré",
+  "description": "Milanesa de carne con puré de papas",
+  "menu_type": "TRADITIONAL"
+}
+
+###
+
+### Crear plato HEALTHY (ADMIN)
+POST {{baseUrl}}/dishes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Tarta de jamón y queso",
+  "description": "Tarta integral con jamón y queso",
+  "menu_type": "HEALTHY"
+}
+
+###
+
+### Crear plato VEGETARIAN (ADMIN)
+POST {{baseUrl}}/dishes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Risotto de hongos",
+  "description": "Risotto cremoso con hongos salteados",
+  "menu_type": "VEGETARIAN"
+}
+
+###
+
+### Listar todos los platos
+GET {{baseUrl}}/dishes
+Authorization: Bearer {{token}}
+
+###
+
+### Listar platos por tipo — TRADITIONAL
+GET {{baseUrl}}/dishes?menu_type=TRADITIONAL
+Authorization: Bearer {{token}}
+
+###
+
+### Listar platos por tipo — HEALTHY
+GET {{baseUrl}}/dishes?menu_type=HEALTHY
+Authorization: Bearer {{token}}
+
+###
+
+### Listar platos por tipo — VEGETARIAN
+GET {{baseUrl}}/dishes?menu_type=VEGETARIAN
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener plato por ID
+GET {{baseUrl}}/dishes/{{dishId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Actualizar plato (ADMIN)
+PUT {{baseUrl}}/dishes/{{dishId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Milanesa con puré actualizada",
+  "description": "Descripción actualizada",
+  "active": true
+}
+
+###
+
+### Desactivar plato (ADMIN)
+PUT {{baseUrl}}/dishes/{{dishId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Milanesa con puré",
+  "description": "Milanesa de carne",
+  "active": false
+}
+
+###
+
+### Eliminar plato (ADMIN)
+DELETE {{baseUrl}}/dishes/{{dishId}}
+Authorization: Bearer {{token}}
+
+###

@@ -1,0 +1,68 @@
+### Variables
+@baseUrl = http://localhost:8080
+@token = <pega_tu_token_aqui>
+@customerId = <pega_el_id_del_cliente>
+
+### ─────────────────────────────
+### CUSTOMERS
+### ─────────────────────────────
+
+### Crear cliente (ADMIN)
+POST {{baseUrl}}/customers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Empresa A",
+  "type": "COMPANY",
+  "phone": "111222333",
+  "address": "Av. Corrientes 123, CABA"
+}
+
+###
+
+### Crear cliente persona (ADMIN)
+POST {{baseUrl}}/customers
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Juan Pérez",
+  "type": "PERSON",
+  "phone": "444555666",
+  "address": "Calle Falsa 456"
+}
+
+###
+
+### Listar todos los clientes
+GET {{baseUrl}}/customers
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener cliente por ID
+GET {{baseUrl}}/customers/{{customerId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Actualizar cliente (ADMIN)
+PUT {{baseUrl}}/customers/{{customerId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Empresa A Actualizada",
+  "type": "COMPANY",
+  "phone": "999888777",
+  "address": "Nueva dirección 789"
+}
+
+###
+
+### Eliminar cliente (ADMIN)
+DELETE {{baseUrl}}/customers/{{customerId}}
+Authorization: Bearer {{token}}
+
+###

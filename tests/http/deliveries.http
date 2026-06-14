@@ -1,0 +1,72 @@
+### Variables
+@baseUrl = http://localhost:8080
+@token = <pega_tu_token_aqui>
+@deliveryId = <pega_el_id_del_delivery>
+
+### ─────────────────────────────
+### DELIVERIES
+### ─────────────────────────────
+
+### Crear delivery (ADMIN)
+POST {{baseUrl}}/deliveries
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Juan"
+}
+
+###
+
+### Crear otro delivery (ADMIN)
+POST {{baseUrl}}/deliveries
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Pedro"
+}
+
+###
+
+### Listar todos los deliveries
+GET {{baseUrl}}/deliveries
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener delivery por ID
+GET {{baseUrl}}/deliveries/{{deliveryId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Actualizar delivery (ADMIN)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Juan P.",
+  "active": true
+}
+
+###
+
+### Desactivar delivery (ADMIN)
+PUT {{baseUrl}}/deliveries/{{deliveryId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Juan P.",
+  "active": false
+}
+
+###
+
+### Eliminar delivery (ADMIN)
+DELETE {{baseUrl}}/deliveries/{{deliveryId}}
+Authorization: Bearer {{token}}
+
+###

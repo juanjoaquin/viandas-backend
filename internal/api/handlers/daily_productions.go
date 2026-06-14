@@ -1,0 +1,193 @@
+package handlers
+
+import (
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/juanjoaquin/viandas-backend/internal/api/dtos"
+	"github.com/juanjoaquin/viandas-backend/internal/service"
+	"github.com/labstack/echo/v5"
+)
+
+type DailyProductionHandler struct {
+	serv service.Service
+}
+
+func NewDailyProductionHandler(serv service.Service) *DailyProductionHandler {
+	return &DailyProductionHandler{serv: serv}
+}
+
+func (h *DailyProductionHandler) Create(c *echo.Context) error {
+	claims, err := requireStaff(c)
+	if err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	var params dtos.CreateDailyProduction
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	productionDate, err := time.Parse("2006-01-02", params.ProductionDate)
+	if err != nil {
+		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
+	}
+
+	dp, err := h.serv.CreateDailyProduction(ctx, productionDate, params.CustomerID, params.DeliveryID,
+		params.TraditionalQty, params.HealthyQty, params.VegetarianQty, params.Notes, claims.UserID)
+	if err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusCreated, "daily production created", dp)
+}
+
+func (h *DailyProductionHandler) GetByDate(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	dateStr := c.QueryParam("date")
+
+	date, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
+	}
+
+	productions, err := h.serv.GetDailyProductions(ctx, date)
+	if err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "ok", productions)
+}
+
+func (h *DailyProductionHandler) GetByID(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	id := c.Param("id")
+
+	dp, err := h.serv.GetDailyProductionByID(ctx, id)
+	if err != nil {
+		if err == service.ErrDailyProductionNotFound {
+			return respond(c, http.StatusNotFound, "daily production not found", nil)
+		}
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "ok", dp)
+}
+
+func (h *DailyProductionHandler) Update(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	id := c.Param("id")
+
+	var params dtos.UpdateDailyProduction
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	if err := h.serv.UpdateDailyProduction(ctx, id, params.DeliveryID, params.TraditionalQty, params.HealthyQty, params.VegetarianQty, params.Notes); err != nil {
+		if err == service.ErrDailyProductionNotFound {
+			return respond(c, http.StatusNotFound, "daily production not found", nil)
+		}
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "daily production updated", nil)
+}
+
+func (h *DailyProductionHandler) AddExtra(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	id := c.Param("id")
+
+	var params dtos.AddDailyProductionExtra
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	extra, err := h.serv.AddDailyProductionExtra(ctx, id, params.ExtraProductID, params.Quantity)
+	if err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusCreated, "extra added", extra)
+}
+
+func (h *DailyProductionHandler) DeleteExtra(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	extraID := c.Param("extraId")
+
+	if err := h.serv.DeleteDailyProductionExtra(ctx, extraID); err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "extra deleted", nil)
+}
+
+func (h *DailyProductionHandler) GetKitchenTotals(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	dateStr := c.QueryParam("date")
+
+	date, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
+	}
+
+	totals, err := h.serv.GetKitchenTotals(ctx, date)
+	if err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "ok", totals)
+}
+
+func (h *DailyProductionHandler) GetExtrasTotals(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	dateStr := c.QueryParam("date")
+
+	date, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
+	}
+
+	totals, err := h.serv.GetExtrasTotals(ctx, date)
+	if err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "ok", totals)
+}

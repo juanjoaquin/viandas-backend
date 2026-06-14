@@ -1,0 +1,53 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/juanjoaquin/viandas-backend/internal/entity"
+)
+
+func (r *repo) SaveDish(ctx context.Context, name, description, menuType string) (*entity.Dish, error) {
+	var d entity.Dish
+	err := r.db.QueryRowxContext(ctx,
+		`INSERT INTO dishes (name, description, menu_type) VALUES ($1, $2, $3) RETURNING *`,
+		name, description, menuType,
+	).StructScan(&d)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
+func (r *repo) GetDishes(ctx context.Context) ([]entity.Dish, error) {
+	var dishes []entity.Dish
+	err := r.db.SelectContext(ctx, &dishes, `SELECT * FROM dishes ORDER BY menu_type, name`)
+	return dishes, err
+}
+
+func (r *repo) GetDishesByMenuType(ctx context.Context, menuType string) ([]entity.Dish, error) {
+	var dishes []entity.Dish
+	err := r.db.SelectContext(ctx, &dishes, `SELECT * FROM dishes WHERE menu_type = $1 AND active = TRUE ORDER BY name`, menuType)
+	return dishes, err
+}
+
+func (r *repo) GetDishByID(ctx context.Context, id string) (*entity.Dish, error) {
+	var d entity.Dish
+	err := r.db.GetContext(ctx, &d, `SELECT * FROM dishes WHERE id = $1`, id)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
+func (r *repo) UpdateDish(ctx context.Context, id, name, description string, active bool) error {
+	_, err := r.db.ExecContext(ctx,
+		`UPDATE dishes SET name=$1, description=$2, active=$3, updated_at=NOW() WHERE id=$4`,
+		name, description, active, id,
+	)
+	return err
+}
+
+func (r *repo) DeleteDish(ctx context.Context, id string) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM dishes WHERE id = $1`, id)
+	return err
+}

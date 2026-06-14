@@ -1,0 +1,98 @@
+### Variables
+@baseUrl = http://localhost:8080
+@token = <pega_tu_token_aqui>
+@extraProductId = <pega_el_id_del_extra>
+
+### ─────────────────────────────
+### EXTRA PRODUCTS
+### ─────────────────────────────
+
+### Crear ensalada (ADMIN)
+POST {{baseUrl}}/extra-products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Ensalada César",
+  "category": "SALAD"
+}
+
+###
+
+### Crear otra ensalada (ADMIN)
+POST {{baseUrl}}/extra-products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Ensalada Completa",
+  "category": "SALAD"
+}
+
+###
+
+### Crear sándwich (ADMIN)
+POST {{baseUrl}}/extra-products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Sándwich de Pollo",
+  "category": "SANDWICH"
+}
+
+###
+
+### Crear otro sándwich (ADMIN)
+POST {{baseUrl}}/extra-products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Sándwich Jamón y Queso",
+  "category": "SANDWICH"
+}
+
+###
+
+### Listar todos los extras
+GET {{baseUrl}}/extra-products
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener extra por ID
+GET {{baseUrl}}/extra-products/{{extraProductId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Actualizar extra (ADMIN)
+PUT {{baseUrl}}/extra-products/{{extraProductId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Ensalada César Actualizada",
+  "active": true
+}
+
+###
+
+### Desactivar extra (ADMIN)
+PUT {{baseUrl}}/extra-products/{{extraProductId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Ensalada César",
+  "active": false
+}
+
+###
+
+### Eliminar extra (ADMIN)
+DELETE {{baseUrl}}/extra-products/{{extraProductId}}
+Authorization: Bearer {{token}}
+
+###
