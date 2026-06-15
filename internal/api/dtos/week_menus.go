@@ -2,6 +2,7 @@ package dtos
 
 type CreateWeekMenu struct {
 	WeekStartDate string `json:"week_start_date" validate:"required"`
+	WeekEndDate   string `json:"week_end_date"   validate:"required"`
 }
 
 type AddWeekMenuItem struct {

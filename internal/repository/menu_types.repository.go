@@ -6,11 +6,11 @@ import (
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 )
 
-func (r *repo) SaveMenuType(ctx context.Context, name string, sortOrder int) (*entity.MenuType, error) {
+func (r *repo) SaveMenuType(ctx context.Context, name string, price *float64) (*entity.MenuType, error) {
 	var mt entity.MenuType
 	err := r.db.QueryRowxContext(ctx,
-		`INSERT INTO menu_types (name, sort_order) VALUES ($1, $2) RETURNING *`,
-		name, sortOrder,
+		`INSERT INTO menu_types (name, price) VALUES ($1, $2) RETURNING *`,
+		name, price,
 	).StructScan(&mt)
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func (r *repo) SaveMenuType(ctx context.Context, name string, sortOrder int) (*e
 
 func (r *repo) GetMenuTypes(ctx context.Context) ([]entity.MenuType, error) {
 	var types []entity.MenuType
-	err := r.db.SelectContext(ctx, &types, `SELECT * FROM menu_types ORDER BY sort_order, name`)
+	err := r.db.SelectContext(ctx, &types, `SELECT * FROM menu_types ORDER BY name`)
 	return types, err
 }
 
@@ -33,10 +33,10 @@ func (r *repo) GetMenuTypeByID(ctx context.Context, id string) (*entity.MenuType
 	return &mt, nil
 }
 
-func (r *repo) UpdateMenuType(ctx context.Context, id, name string, sortOrder int, active bool) error {
+func (r *repo) UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error {
 	_, err := r.db.ExecContext(ctx,
-		`UPDATE menu_types SET name=$1, sort_order=$2, active=$3, updated_at=NOW() WHERE id=$4`,
-		name, sortOrder, active, id,
+		`UPDATE menu_types SET name=$1, price=$2, active=$3, updated_at=NOW() WHERE id=$4`,
+		name, price, active, id,
 	)
 	return err
 }

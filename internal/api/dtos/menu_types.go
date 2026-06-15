@@ -1,12 +1,12 @@
 package dtos
 
 type CreateMenuType struct {
-	Name      string `json:"name"       validate:"required,min=2"`
-	SortOrder int    `json:"sort_order"`
+	Name  string   `json:"name"  validate:"required,min=2"`
+	Price *float64 `json:"price"`
 }
 
 type UpdateMenuType struct {
-	Name      string `json:"name"       validate:"required,min=2"`
-	SortOrder int    `json:"sort_order"`
-	Active    bool   `json:"active"`
+	Name   string   `json:"name"   validate:"required,min=2"`
+	Price  *float64 `json:"price"`
+	Active bool     `json:"active"`
 }

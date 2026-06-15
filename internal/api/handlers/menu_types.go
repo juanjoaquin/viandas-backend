@@ -28,7 +28,7 @@ func (h *MenuTypeHandler) Create(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	mt, err := h.serv.CreateMenuType(ctx, params.Name, params.SortOrder)
+	mt, err := h.serv.CreateMenuType(ctx, params.Name, params.Price)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -84,7 +84,7 @@ func (h *MenuTypeHandler) Update(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	if err := h.serv.UpdateMenuType(ctx, id, params.Name, params.SortOrder, params.Active); err != nil {
+	if err := h.serv.UpdateMenuType(ctx, id, params.Name, params.Price, params.Active); err != nil {
 		if err == service.ErrMenuTypeNotFound {
 			return respond(c, http.StatusNotFound, "menu type not found", nil)
 		}

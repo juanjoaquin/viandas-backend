@@ -9,15 +9,15 @@ import (
 
 var ErrMenuTypeNotFound = errors.New("menu type not found")
 
-func (s *serv) CreateMenuType(ctx context.Context, name string, sortOrder int) (*models.MenuType, error) {
-	mt, err := s.repo.SaveMenuType(ctx, name, sortOrder)
+func (s *serv) CreateMenuType(ctx context.Context, name string, price *float64) (*models.MenuType, error) {
+	mt, err := s.repo.SaveMenuType(ctx, name, price)
 	if err != nil {
 		return nil, err
 	}
 	return &models.MenuType{
 		ID:        mt.ID,
 		Name:      mt.Name,
-		SortOrder: mt.SortOrder,
+		Price:     mt.Price,
 		Active:    mt.Active,
 		CreatedAt: mt.CreatedAt.Format("2006-01-02T15:04:05Z"),
 	}, nil
@@ -34,7 +34,7 @@ func (s *serv) GetMenuTypes(ctx context.Context) ([]models.MenuType, error) {
 		types[i] = models.MenuType{
 			ID:        mt.ID,
 			Name:      mt.Name,
-			SortOrder: mt.SortOrder,
+			Price:     mt.Price,
 			Active:    mt.Active,
 			CreatedAt: mt.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		}
@@ -50,18 +50,18 @@ func (s *serv) GetMenuTypeByID(ctx context.Context, id string) (*models.MenuType
 	return &models.MenuType{
 		ID:        mt.ID,
 		Name:      mt.Name,
-		SortOrder: mt.SortOrder,
+		Price:     mt.Price,
 		Active:    mt.Active,
 		CreatedAt: mt.CreatedAt.Format("2006-01-02T15:04:05Z"),
 	}, nil
 }
 
-func (s *serv) UpdateMenuType(ctx context.Context, id, name string, sortOrder int, active bool) error {
+func (s *serv) UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error {
 	_, err := s.repo.GetMenuTypeByID(ctx, id)
 	if err != nil {
 		return ErrMenuTypeNotFound
 	}
-	return s.repo.UpdateMenuType(ctx, id, name, sortOrder, active)
+	return s.repo.UpdateMenuType(ctx, id, name, price, active)
 }
 
 func (s *serv) DeleteMenuType(ctx context.Context, id string) error {

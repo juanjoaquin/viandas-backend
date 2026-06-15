@@ -31,12 +31,12 @@ CREATE TABLE deliveries (
 );
 
 CREATE TABLE menu_types (
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name       VARCHAR(100) NOT NULL UNIQUE,
-    sort_order INTEGER      NOT NULL DEFAULT 0,
-    active     BOOLEAN      NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP    NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP    NOT NULL DEFAULT NOW()
+    id         UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+    name       VARCHAR(100)  NOT NULL UNIQUE,
+    price      NUMERIC(10,2),
+    active     BOOLEAN       NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP     NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP     NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE dishes (
@@ -61,6 +61,7 @@ CREATE TABLE extra_products (
 CREATE TABLE week_menus (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     week_start_date DATE      NOT NULL UNIQUE,
+    week_end_date   DATE      NOT NULL,
     created_by      UUID      NOT NULL REFERENCES users(id),
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
@@ -78,14 +79,16 @@ CREATE TABLE week_menu_items (
 );
 
 CREATE TABLE daily_productions (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    production_date DATE     NOT NULL,
-    customer_id     UUID     NOT NULL REFERENCES customers(id),
-    delivery_id     UUID     REFERENCES deliveries(id),
-    notes           TEXT,
-    created_by      UUID     NOT NULL REFERENCES users(id),
-    created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    production_date  DATE        NOT NULL,
+    customer_id      UUID        NOT NULL REFERENCES customers(id),
+    fulfillment_type VARCHAR(20) NOT NULL DEFAULT 'PENDING'
+    CHECK (fulfillment_type IN ('PENDING', 'DELIVERY', 'PICKUP')),
+    delivery_id      UUID        REFERENCES deliveries(id),
+    notes            TEXT,
+    created_by       UUID        NOT NULL REFERENCES users(id),
+    created_at       TIMESTAMP   NOT NULL DEFAULT NOW(),
+    updated_at       TIMESTAMP   NOT NULL DEFAULT NOW(),
     UNIQUE (production_date, customer_id)
 );
 

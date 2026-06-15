@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = <pega_tu_token_aqui>
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiODIzYmViODQtMzcwNS00OTE0LWI5NmMtNDZhOWZhMDc3M2E4IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1ODA4NjIsImlhdCI6MTc4MTQ5NDQ2Mn0.ci6rJf0wiotVJNpfxhNE9P_L_sntrOdXd8l6s2gXOWU
 @dailyProductionId = <pega_el_id_de_produccion>
 @customerId = <pega_el_id_del_cliente>
 @deliveryId = <pega_el_id_del_repartidor>
@@ -13,7 +13,26 @@
 ### DAILY PRODUCTIONS
 ### ─────────────────────────────
 
-### Crear producción diaria (STAFF)
+### Crear producción — tipo PENDING (no se sabe aún cómo se entrega)
+### fulfillment_type omitido o "PENDING" → sin delivery_id
+### lines es opcional; si se omite, cargar cantidades después con PUT .../lines
+POST {{baseUrl}}/daily-productions
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "production_date": "2026-06-15",
+  "customer_id": "7039523b-9e7b-4da6-abab-9cb1204a094e",
+  "fulfillment_type": "PENDING",
+  "notes": null,
+  "lines": [
+    { "menu_type_id": "a6d7a71d-5da6-4515-8272-f98b0dc18f2f", "quantity": 4 }
+  ]
+}
+
+###
+
+### Crear producción — tipo DELIVERY (con repartidor desde el inicio)
 POST {{baseUrl}}/daily-productions
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -21,14 +40,35 @@ Authorization: Bearer {{token}}
 {
   "production_date": "2026-06-16",
   "customer_id": "{{customerId}}",
+  "fulfillment_type": "DELIVERY",
   "delivery_id": "{{deliveryId}}",
-  "notes": "Sin sal"
+  "notes": "Sin sal",
+  "lines": [
+    { "menu_type_id": "{{menuTypeId}}", "quantity": 8 }
+  ]
+}
+
+###
+
+### Crear producción — tipo PICKUP (retiro en sucursal, sin delivery_id)
+POST {{baseUrl}}/daily-productions
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "production_date": "2026-06-16",
+  "customer_id": "{{customerId}}",
+  "fulfillment_type": "PICKUP",
+  "notes": "",
+  "lines": [
+    { "menu_type_id": "{{menuTypeId}}", "quantity": 5 }
+  ]
 }
 
 ###
 
 ### Listar producciones del día
-GET {{baseUrl}}/daily-productions?date=2026-06-16
+GET {{baseUrl}}/daily-productions?date=2026-06-15
 Authorization: Bearer {{token}}
 
 ###
@@ -39,13 +79,36 @@ Authorization: Bearer {{token}}
 
 ###
 
-### Actualizar producción (delivery y notas)
+### Actualizar producción — asignar delivery a un PENDING
+### Solo los campos enviados con valor no vacío se actualizan
 PUT {{baseUrl}}/daily-productions/{{dailyProductionId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "delivery_id": "{{deliveryId}}",
+  "fulfillment_type": "DELIVERY",
+  "delivery_id": "{{deliveryId}}"
+}
+
+###
+
+### Actualizar producción — cambiar a PICKUP (limpia delivery_id automáticamente)
+PUT {{baseUrl}}/daily-productions/6ef15b2f-6453-43e0-ba3c-369414fa861d
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "fulfillment_type": "PICKUP"
+}
+
+###
+
+### Actualizar solo notas (sin tocar fulfillment_type ni delivery)
+PUT {{baseUrl}}/daily-productions/{{dailyProductionId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
   "notes": "Sin gluten"
 }
 
@@ -100,7 +163,7 @@ Authorization: Bearer {{token}}
 ### ─────────────────────────────
 
 ### Totales de cocina del día (por tipo de menú)
-GET {{baseUrl}}/daily-productions/totals/kitchen?date=2026-06-16
+GET {{baseUrl}}/daily-productions/totals/kitchen?date=2026-06-15
 Authorization: Bearer {{token}}
 
 ###

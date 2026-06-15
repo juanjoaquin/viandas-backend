@@ -14,10 +14,10 @@ func (s *serv) dishToModel(ctx context.Context, id, name, description, menuTypeI
 	if menuTypeID != "" {
 		if entity, err := s.repo.GetMenuTypeByID(ctx, menuTypeID); err == nil {
 			mt = &models.MenuType{
-				ID:        entity.ID,
-				Name:      entity.Name,
-				SortOrder: entity.SortOrder,
-				Active:    entity.Active,
+				ID:     entity.ID,
+				Name:   entity.Name,
+				Price:  entity.Price,
+				Active: entity.Active,
 			}
 		}
 	}

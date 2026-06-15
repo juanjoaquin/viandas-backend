@@ -5,23 +5,79 @@ import (
 	"errors"
 	"time"
 
+	"github.com/juanjoaquin/viandas-backend/internal/entity"
 	"github.com/juanjoaquin/viandas-backend/internal/models"
 )
 
 var ErrDailyProductionNotFound = errors.New("daily production not found")
+var ErrInvalidFulfillment = errors.New("PICKUP cannot have a delivery_id")
 
-func (s *serv) CreateDailyProduction(ctx context.Context, productionDate time.Time, customerID, deliveryID, notes, createdBy string) (*models.DailyProduction, error) {
-	dp, err := s.repo.SaveDailyProduction(ctx, productionDate, customerID, deliveryID, notes, createdBy)
-	if err != nil {
-		return nil, err
+const (
+	FulfillmentPending  = "PENDING"
+	FulfillmentDelivery = "DELIVERY"
+	FulfillmentPickup   = "PICKUP"
+)
+
+func normalizeFulfillment(ft string) string {
+	switch ft {
+	case FulfillmentDelivery, FulfillmentPickup, FulfillmentPending:
+		return ft
+	default:
+		return FulfillmentPending
 	}
-	return &models.DailyProduction{
-		ID:             dp.ID,
-		ProductionDate: dp.ProductionDate.Format("2006-01-02"),
-		Notes:          dp.Notes,
-		CreatedBy:      dp.CreatedBy,
-		CreatedAt:      dp.CreatedAt.Format("2006-01-02T15:04:05Z"),
-	}, nil
+}
+
+func (s *serv) CreateDailyProduction(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string, lines []entity.ProductionLineInput) (*models.DailyProduction, error) {
+	fulfillmentType = normalizeFulfillment(fulfillmentType)
+
+	if fulfillmentType == FulfillmentPickup && deliveryID != "" {
+		return nil, ErrInvalidFulfillment
+	}
+	if fulfillmentType == FulfillmentPickup {
+		deliveryID = ""
+	}
+
+	var dp *entity.DailyProduction
+	var savedLines []entity.DailyProductionLine
+
+	if len(lines) == 0 {
+		var err error
+		dp, err = s.repo.SaveDailyProduction(ctx, productionDate, customerID, fulfillmentType, deliveryID, notes, createdBy)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		var err error
+		dp, savedLines, err = s.repo.SaveDailyProductionWithLines(ctx, productionDate, customerID, fulfillmentType, deliveryID, notes, createdBy, lines)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	lineModels := make([]models.DailyProductionLine, 0, len(savedLines))
+	for _, line := range savedLines {
+		lm := models.DailyProductionLine{
+			ID:       line.ID,
+			Quantity: line.Quantity,
+		}
+		if mt, err := s.repo.GetMenuTypeByID(ctx, line.MenuTypeID); err == nil {
+			lm.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, Price: mt.Price}
+		}
+		lineModels = append(lineModels, lm)
+	}
+
+	result := &models.DailyProduction{
+		ID:              dp.ID,
+		ProductionDate:  dp.ProductionDate.Format("2006-01-02"),
+		FulfillmentType: dp.FulfillmentType,
+		Notes:           dp.Notes,
+		CreatedBy:       dp.CreatedBy,
+		CreatedAt:       dp.CreatedAt.Format("2006-01-02T15:04:05Z"),
+	}
+	if len(lineModels) > 0 {
+		result.Lines = lineModels
+	}
+	return result, nil
 }
 
 func (s *serv) GetDailyProductions(ctx context.Context, date time.Time) ([]models.DailyProduction, error) {
@@ -39,8 +95,8 @@ func (s *serv) GetDailyProductions(ctx context.Context, date time.Time) ([]model
 		}
 
 		var deliveryModel *models.Delivery
-		if dp.DeliveryID != "" {
-			delivery, _ := s.repo.GetDeliveryByID(ctx, dp.DeliveryID)
+		if dp.DeliveryID != nil && *dp.DeliveryID != "" {
+			delivery, _ := s.repo.GetDeliveryByID(ctx, *dp.DeliveryID)
 			if delivery != nil {
 				deliveryModel = &models.Delivery{ID: delivery.ID, Name: delivery.Name, Phone: delivery.Phone}
 			}
@@ -54,7 +110,7 @@ func (s *serv) GetDailyProductions(ctx context.Context, date time.Time) ([]model
 				Quantity: line.Quantity,
 			}
 			if mt, err := s.repo.GetMenuTypeByID(ctx, line.MenuTypeID); err == nil {
-				lm.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, SortOrder: mt.SortOrder}
+				lm.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, Price: mt.Price}
 			}
 			lineModels[j] = lm
 		}
@@ -75,15 +131,16 @@ func (s *serv) GetDailyProductions(ctx context.Context, date time.Time) ([]model
 		}
 
 		productions[i] = models.DailyProduction{
-			ID:             dp.ID,
-			ProductionDate: dp.ProductionDate.Format("2006-01-02"),
-			Customer:       customerModel,
-			Delivery:       deliveryModel,
-			Lines:          lineModels,
-			Notes:          dp.Notes,
-			Extras:         extraModels,
-			CreatedBy:      dp.CreatedBy,
-			CreatedAt:      dp.CreatedAt.Format("2006-01-02T15:04:05Z"),
+			ID:              dp.ID,
+			ProductionDate:  dp.ProductionDate.Format("2006-01-02"),
+			FulfillmentType: dp.FulfillmentType,
+			Customer:        customerModel,
+			Delivery:        deliveryModel,
+			Lines:           lineModels,
+			Notes:           dp.Notes,
+			Extras:          extraModels,
+			CreatedBy:       dp.CreatedBy,
+			CreatedAt:       dp.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		}
 	}
 	return productions, nil
@@ -103,27 +160,58 @@ func (s *serv) GetDailyProductionByID(ctx context.Context, id string) (*models.D
 			Quantity: line.Quantity,
 		}
 		if mt, err := s.repo.GetMenuTypeByID(ctx, line.MenuTypeID); err == nil {
-			lm.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, SortOrder: mt.SortOrder}
+			lm.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, Price: mt.Price}
 		}
 		lineModels[j] = lm
 	}
 
 	return &models.DailyProduction{
-		ID:             dp.ID,
-		ProductionDate: dp.ProductionDate.Format("2006-01-02"),
-		Lines:          lineModels,
-		Notes:          dp.Notes,
-		CreatedBy:      dp.CreatedBy,
-		CreatedAt:      dp.CreatedAt.Format("2006-01-02T15:04:05Z"),
+		ID:              dp.ID,
+		ProductionDate:  dp.ProductionDate.Format("2006-01-02"),
+		FulfillmentType: dp.FulfillmentType,
+		Lines:           lineModels,
+		Notes:           dp.Notes,
+		CreatedBy:       dp.CreatedBy,
+		CreatedAt:       dp.CreatedAt.Format("2006-01-02T15:04:05Z"),
 	}, nil
 }
 
-func (s *serv) UpdateDailyProduction(ctx context.Context, id, deliveryID, notes string) error {
-	_, err := s.repo.GetDailyProductionByID(ctx, id)
+func (s *serv) UpdateDailyProduction(ctx context.Context, id string, fulfillmentType, deliveryID, notes *string) error {
+	current, err := s.repo.GetDailyProductionByID(ctx, id)
 	if err != nil {
 		return ErrDailyProductionNotFound
 	}
-	return s.repo.UpdateDailyProduction(ctx, id, deliveryID, notes)
+
+	// Partir del estado actual y aplicar solo los campos enviados
+	ft := current.FulfillmentType
+	did := ""
+	if current.DeliveryID != nil {
+		did = *current.DeliveryID
+	}
+	n := ""
+	if current.Notes != nil {
+		n = *current.Notes
+	}
+
+	if fulfillmentType != nil {
+		ft = normalizeFulfillment(*fulfillmentType)
+	}
+	if deliveryID != nil {
+		did = *deliveryID
+	}
+	if notes != nil {
+		n = *notes
+	}
+
+	// Validar estado final
+	if ft == FulfillmentPickup && did != "" {
+		return ErrInvalidFulfillment
+	}
+	if ft == FulfillmentPickup {
+		did = ""
+	}
+
+	return s.repo.UpdateDailyProduction(ctx, id, ft, did, n)
 }
 
 func (s *serv) UpsertDailyProductionLine(ctx context.Context, dailyProductionID, menuTypeID string, quantity int) (*models.DailyProductionLine, error) {
@@ -137,7 +225,7 @@ func (s *serv) UpsertDailyProductionLine(ctx context.Context, dailyProductionID,
 		Quantity: line.Quantity,
 	}
 	if mt, err := s.repo.GetMenuTypeByID(ctx, line.MenuTypeID); err == nil {
-		lm.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, SortOrder: mt.SortOrder}
+		lm.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, Price: mt.Price}
 	}
 	return lm, nil
 }
@@ -184,7 +272,7 @@ func (s *serv) GetMenuByDate(ctx context.Context, date time.Time) (*models.DayMe
 		line := models.DayMenuLine{}
 
 		if mt, err := s.repo.GetMenuTypeByID(ctx, item.MenuTypeID); err == nil {
-			line.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, SortOrder: mt.SortOrder}
+			line.MenuType = &models.MenuType{ID: mt.ID, Name: mt.Name, Price: mt.Price}
 		}
 
 		if dish, err := s.repo.GetDishByID(ctx, item.DishID); err == nil {
@@ -218,7 +306,7 @@ func (s *serv) GetKitchenTotals(ctx context.Context, date time.Time) (*models.Ki
 				mt, _ := s.repo.GetMenuTypeByID(ctx, line.MenuTypeID)
 				var mtModel *models.MenuType
 				if mt != nil {
-					mtModel = &models.MenuType{ID: mt.ID, Name: mt.Name, SortOrder: mt.SortOrder}
+					mtModel = &models.MenuType{ID: mt.ID, Name: mt.Name, Price: mt.Price}
 				}
 				totalsMap[line.MenuTypeID] = &models.MenuTypeTotalQty{MenuType: mtModel, TotalQty: 0}
 			}
@@ -230,9 +318,24 @@ func (s *serv) GetKitchenTotals(ctx context.Context, date time.Time) (*models.Ki
 		Date:   date.Format("2006-01-02"),
 		Totals: make([]models.MenuTypeTotalQty, 0, len(totalsMap)),
 	}
+
+	var grandTotal float64
+	hasAnyPrice := false
+
 	for _, t := range totalsMap {
+		if t.MenuType != nil && t.MenuType.Price != nil {
+			amount := float64(t.TotalQty) * *t.MenuType.Price
+			t.TotalAmount = &amount
+			grandTotal += amount
+			hasAnyPrice = true
+		}
 		totals.Totals = append(totals.Totals, *t)
 	}
+
+	if hasAnyPrice {
+		totals.GrandTotal = &grandTotal
+	}
+
 	return totals, nil
 }
 

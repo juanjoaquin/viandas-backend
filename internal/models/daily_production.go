@@ -1,15 +1,16 @@
 package models
 
 type DailyProduction struct {
-	ID             string                 `json:"id"`
-	ProductionDate string                 `json:"production_date"`
-	Customer       *Customer              `json:"customer,omitempty"`
-	Delivery       *Delivery              `json:"delivery,omitempty"`
-	Lines          []DailyProductionLine  `json:"lines,omitempty"`
-	Notes          string                 `json:"notes,omitempty"`
-	Extras         []DailyProductionExtra `json:"extras,omitempty"`
-	CreatedBy      string                 `json:"created_by"`
-	CreatedAt      string                 `json:"created_at"`
+	ID              string                 `json:"id"`
+	ProductionDate  string                 `json:"production_date"`
+	FulfillmentType string                 `json:"fulfillment_type"`
+	Customer        *Customer              `json:"customer,omitempty"`
+	Delivery        *Delivery              `json:"delivery,omitempty"`
+	Lines           []DailyProductionLine  `json:"lines,omitempty"`
+	Notes           *string                `json:"notes"`
+	Extras          []DailyProductionExtra `json:"extras,omitempty"`
+	CreatedBy       string                 `json:"created_by"`
+	CreatedAt       string                 `json:"created_at"`
 }
 
 type DailyProductionLine struct {
@@ -25,13 +26,15 @@ type DailyProductionExtra struct {
 }
 
 type KitchenTotals struct {
-	Date   string             `json:"date"`
-	Totals []MenuTypeTotalQty `json:"totals"`
+	Date       string             `json:"date"`
+	Totals     []MenuTypeTotalQty `json:"totals"`
+	GrandTotal *float64           `json:"grand_total"`
 }
 
 type MenuTypeTotalQty struct {
-	MenuType *MenuType `json:"menu_type"`
-	TotalQty int       `json:"total_qty"`
+	MenuType    *MenuType `json:"menu_type"`
+	TotalQty    int       `json:"total_qty"`
+	TotalAmount *float64  `json:"total_amount"`
 }
 
 type ExtraTotals struct {

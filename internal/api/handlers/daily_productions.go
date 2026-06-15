@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/juanjoaquin/viandas-backend/internal/api/dtos"
+	"github.com/juanjoaquin/viandas-backend/internal/entity"
 	"github.com/juanjoaquin/viandas-backend/internal/service"
 	"github.com/labstack/echo/v5"
 )
@@ -35,8 +36,16 @@ func (h *DailyProductionHandler) Create(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
 	}
 
-	dp, err := h.serv.CreateDailyProduction(ctx, productionDate, params.CustomerID, params.DeliveryID, params.Notes, claims.UserID)
+	lineInputs := make([]entity.ProductionLineInput, len(params.Lines))
+	for i, l := range params.Lines {
+		lineInputs[i] = entity.ProductionLineInput{MenuTypeID: l.MenuTypeID, Quantity: l.Quantity}
+	}
+
+	dp, err := h.serv.CreateDailyProduction(ctx, productionDate, params.CustomerID, params.FulfillmentType, params.DeliveryID, params.Notes, claims.UserID, lineInputs)
 	if err != nil {
+		if err == service.ErrInvalidFulfillment {
+			return respond(c, http.StatusBadRequest, err.Error(), nil)
+		}
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
@@ -101,9 +110,12 @@ func (h *DailyProductionHandler) Update(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	if err := h.serv.UpdateDailyProduction(ctx, id, params.DeliveryID, params.Notes); err != nil {
+	if err := h.serv.UpdateDailyProduction(ctx, id, params.FulfillmentType, params.DeliveryID, params.Notes); err != nil {
 		if err == service.ErrDailyProductionNotFound {
 			return respond(c, http.StatusNotFound, "daily production not found", nil)
+		}
+		if err == service.ErrInvalidFulfillment {
+			return respond(c, http.StatusBadRequest, err.Error(), nil)
 		}
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)

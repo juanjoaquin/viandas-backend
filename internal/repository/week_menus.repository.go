@@ -7,11 +7,11 @@ import (
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 )
 
-func (r *repo) SaveWeekMenu(ctx context.Context, weekStartDate time.Time, createdBy string) (*entity.WeekMenu, error) {
+func (r *repo) SaveWeekMenu(ctx context.Context, weekStartDate, weekEndDate time.Time, createdBy string) (*entity.WeekMenu, error) {
 	var m entity.WeekMenu
 	err := r.db.QueryRowxContext(ctx,
-		`INSERT INTO week_menus (week_start_date, created_by) VALUES ($1, $2) RETURNING *`,
-		weekStartDate, createdBy,
+		`INSERT INTO week_menus (week_start_date, week_end_date, created_by) VALUES ($1, $2, $3) RETURNING *`,
+		weekStartDate, weekEndDate, createdBy,
 	).StructScan(&m)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (r *repo) GetWeekMenuItems(ctx context.Context, weekMenuID string) ([]entit
 		`SELECT wmi.* FROM week_menu_items wmi
 		 JOIN menu_types mt ON mt.id = wmi.menu_type_id
 		 WHERE wmi.week_menu_id = $1
-		 ORDER BY wmi.menu_date, mt.sort_order`,
+		 ORDER BY wmi.menu_date, mt.name`,
 		weekMenuID,
 	)
 	return items, err
@@ -82,7 +82,7 @@ func (r *repo) GetWeekMenuItemsByDate(ctx context.Context, date time.Time) ([]en
 		`SELECT wmi.* FROM week_menu_items wmi
 		 JOIN menu_types mt ON mt.id = wmi.menu_type_id
 		 WHERE wmi.menu_date = $1
-		 ORDER BY mt.sort_order`,
+		 ORDER BY mt.name`,
 		date,
 	)
 	return items, err

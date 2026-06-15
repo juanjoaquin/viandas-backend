@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiODIzYmViODQtMzcwNS00OTE0LWI5NmMtNDZhOWZhMDc3M2E4IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1ODA4NjIsImlhdCI6MTc4MTQ5NDQ2Mn0.ci6rJf0wiotVJNpfxhNE9P_L_sntrOdXd8l6s2gXOWU
 @menuTypeId = <pega_el_id_del_tipo_de_menu>
 
 ### ─────────────────────────────
@@ -25,7 +25,19 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Menú Vegano"
+  "name": "Menú Tradicional",
+  "price": 10000
+}
+
+###
+
+### Crear tipo de menú sin precio (ADMIN)
+POST {{baseUrl}}/menu-types
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Menú Especial"
 }
 
 ###
@@ -37,7 +49,20 @@ Authorization: Bearer {{token}}
 
 {
   "name": "Vegetariano",
-  "sort_order": 3,
+  "price": 9000,
+  "active": true
+}
+
+###
+
+### Quitar precio de tipo de menú (ADMIN)
+PUT {{baseUrl}}/menu-types/{{menuTypeId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Vegetariano",
+  "price": null,
   "active": true
 }
 

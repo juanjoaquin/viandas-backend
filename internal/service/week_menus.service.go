@@ -10,14 +10,15 @@ import (
 
 var ErrWeekMenuNotFound = errors.New("week menu not found")
 
-func (s *serv) CreateWeekMenu(ctx context.Context, weekStartDate time.Time, createdBy string) (*models.WeekMenu, error) {
-	m, err := s.repo.SaveWeekMenu(ctx, weekStartDate, createdBy)
+func (s *serv) CreateWeekMenu(ctx context.Context, weekStartDate, weekEndDate time.Time, createdBy string) (*models.WeekMenu, error) {
+	m, err := s.repo.SaveWeekMenu(ctx, weekStartDate, weekEndDate, createdBy)
 	if err != nil {
 		return nil, err
 	}
 	return &models.WeekMenu{
 		ID:            m.ID,
 		WeekStartDate: m.WeekStartDate.Format("2006-01-02"),
+		WeekEndDate:   m.WeekEndDate.Format("2006-01-02"),
 		CreatedBy:     m.CreatedBy,
 		CreatedAt:     m.CreatedAt.Format("2006-01-02T15:04:05Z"),
 	}, nil
@@ -34,6 +35,7 @@ func (s *serv) GetWeekMenus(ctx context.Context) ([]models.WeekMenu, error) {
 		menus[i] = models.WeekMenu{
 			ID:            m.ID,
 			WeekStartDate: m.WeekStartDate.Format("2006-01-02"),
+			WeekEndDate:   m.WeekEndDate.Format("2006-01-02"),
 			CreatedBy:     m.CreatedBy,
 			CreatedAt:     m.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		}
@@ -62,10 +64,10 @@ func (s *serv) GetWeekMenuByID(ctx context.Context, id string) (*models.WeekMenu
 
 		if mtEntity, err := s.repo.GetMenuTypeByID(ctx, item.MenuTypeID); err == nil {
 			mi.MenuType = &models.MenuType{
-				ID:        mtEntity.ID,
-				Name:      mtEntity.Name,
-				SortOrder: mtEntity.SortOrder,
-				Active:    mtEntity.Active,
+				ID:     mtEntity.ID,
+				Name:   mtEntity.Name,
+				Price:  mtEntity.Price,
+				Active: mtEntity.Active,
 			}
 		}
 
@@ -79,6 +81,7 @@ func (s *serv) GetWeekMenuByID(ctx context.Context, id string) (*models.WeekMenu
 	return &models.WeekMenu{
 		ID:            m.ID,
 		WeekStartDate: m.WeekStartDate.Format("2006-01-02"),
+		WeekEndDate:   m.WeekEndDate.Format("2006-01-02"),
 		CreatedBy:     m.CreatedBy,
 		Items:         menuItems,
 		CreatedAt:     m.CreatedAt.Format("2006-01-02T15:04:05Z"),

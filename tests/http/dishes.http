@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiODIzYmViODQtMzcwNS00OTE0LWI5NmMtNDZhOWZhMDc3M2E4IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1ODA4NjIsImlhdCI6MTc4MTQ5NDQ2Mn0.ci6rJf0wiotVJNpfxhNE9P_L_sntrOdXd8l6s2gXOWU
 @dishId = <pega_el_id_del_plato>
 @menuTypeId = <pega_el_id_del_tipo_de_menu>
 
@@ -15,9 +15,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Pastel de calabaza",
-  "description": "Pastel de calabaza con queso y huevo",
-  "menu_type_id": "55179510-1f80-4ad4-900f-e11c7fefbb05"
+  "name": "Tarta de verdura",
+  "description": "Tarta de verdura con queso y huevo",
+  "menu_type_id": "a6d7a71d-5da6-4515-8272-f98b0dc18f2f"
 }
 
 ###

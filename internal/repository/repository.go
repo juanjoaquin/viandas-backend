@@ -30,10 +30,10 @@ type Repository interface {
 	DeleteDelivery(ctx context.Context, id string) error
 
 	// MenuTypes
-	SaveMenuType(ctx context.Context, name string, sortOrder int) (*entity.MenuType, error)
+	SaveMenuType(ctx context.Context, name string, price *float64) (*entity.MenuType, error)
 	GetMenuTypes(ctx context.Context) ([]entity.MenuType, error)
 	GetMenuTypeByID(ctx context.Context, id string) (*entity.MenuType, error)
-	UpdateMenuType(ctx context.Context, id, name string, sortOrder int, active bool) error
+	UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error
 	DeleteMenuType(ctx context.Context, id string) error
 
 	// Dishes
@@ -52,7 +52,7 @@ type Repository interface {
 	DeleteExtraProduct(ctx context.Context, id string) error
 
 	// WeekMenus
-	SaveWeekMenu(ctx context.Context, weekStartDate time.Time, createdBy string) (*entity.WeekMenu, error)
+	SaveWeekMenu(ctx context.Context, weekStartDate, weekEndDate time.Time, createdBy string) (*entity.WeekMenu, error)
 	GetWeekMenus(ctx context.Context) ([]entity.WeekMenu, error)
 	GetWeekMenuByID(ctx context.Context, id string) (*entity.WeekMenu, error)
 	GetWeekMenuByDate(ctx context.Context, date time.Time) (*entity.WeekMenu, error)
@@ -66,10 +66,11 @@ type Repository interface {
 	DeleteWeekMenuItem(ctx context.Context, id string) error
 
 	// DailyProductions
-	SaveDailyProduction(ctx context.Context, productionDate time.Time, customerID, deliveryID, notes, createdBy string) (*entity.DailyProduction, error)
+	SaveDailyProduction(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string) (*entity.DailyProduction, error)
+	SaveDailyProductionWithLines(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string, lines []entity.ProductionLineInput) (*entity.DailyProduction, []entity.DailyProductionLine, error)
 	GetDailyProductions(ctx context.Context, date time.Time) ([]entity.DailyProduction, error)
 	GetDailyProductionByID(ctx context.Context, id string) (*entity.DailyProduction, error)
-	UpdateDailyProduction(ctx context.Context, id, deliveryID, notes string) error
+	UpdateDailyProduction(ctx context.Context, id, fulfillmentType, deliveryID, notes string) error
 	DeleteDailyProduction(ctx context.Context, id string) error
 
 	// DailyProductionLines

@@ -35,7 +35,12 @@ func (h *WeekMenuHandler) Create(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
 	}
 
-	menu, err := h.serv.CreateWeekMenu(ctx, startDate, claims.UserID)
+	endDate, err := time.Parse("2006-01-02", params.WeekEndDate)
+	if err != nil {
+		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
+	}
+
+	menu, err := h.serv.CreateWeekMenu(ctx, startDate, endDate, claims.UserID)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)

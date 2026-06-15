@@ -3,6 +3,7 @@ package models
 type WeekMenu struct {
 	ID            string         `json:"id"`
 	WeekStartDate string         `json:"week_start_date"`
+	WeekEndDate   string         `json:"week_end_date"`
 	CreatedBy     string         `json:"created_by"`
 	Items         []WeekMenuItem `json:"items,omitempty"`
 	CreatedAt     string         `json:"created_at"`

@@ -1,15 +1,23 @@
 package dtos
 
+type CreateDailyProductionLine struct {
+	MenuTypeID string `json:"menu_type_id" validate:"required"`
+	Quantity   int    `json:"quantity"     validate:"min=0"`
+}
+
 type CreateDailyProduction struct {
-	ProductionDate string `json:"production_date" validate:"required"`
-	CustomerID     string `json:"customer_id"     validate:"required"`
-	DeliveryID     string `json:"delivery_id"`
-	Notes          string `json:"notes"`
+	ProductionDate  string                      `json:"production_date"  validate:"required"`
+	CustomerID      string                      `json:"customer_id"      validate:"required"`
+	FulfillmentType string                      `json:"fulfillment_type"`
+	DeliveryID      string                      `json:"delivery_id"`
+	Notes           string                      `json:"notes"`
+	Lines           []CreateDailyProductionLine `json:"lines"`
 }
 
 type UpdateDailyProduction struct {
-	DeliveryID string `json:"delivery_id"`
-	Notes      string `json:"notes"`
+	FulfillmentType *string `json:"fulfillment_type"`
+	DeliveryID      *string `json:"delivery_id"`
+	Notes           *string `json:"notes"`
 }
 
 type UpsertDailyProductionLine struct {
