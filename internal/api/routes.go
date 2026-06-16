@@ -21,6 +21,8 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	auth.POST("/register", userH.Register)
 	auth.POST("/login", userH.Login)
 	auth.GET("/me", userH.Me)
+	auth.POST("/refresh", userH.Refresh)
+	auth.POST("/logout", userH.Logout)
 
 	// Customers
 	customers := e.Group("/customers")

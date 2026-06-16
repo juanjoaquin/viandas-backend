@@ -12,8 +12,8 @@ import (
 
 func New(ctx context.Context, s *settings.Settings) (*sqlx.DB, error) {
 	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		s.DB.Host, s.DB.Port, s.DB.User, s.DB.Password, s.DB.Name,
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		s.DB.Host, s.DB.Port, s.DB.User, s.DB.Password, s.DB.Name, s.DB.SSLMode,
 	)
 
 	db, err := sqlx.ConnectContext(ctx, "postgres", dsn)

@@ -29,14 +29,16 @@ func New(serv service.Service) *API {
 }
 
 func (a *API) Start(e *echo.Echo, address string) error {
-	a.RegisterRoutes(e, a.serv)
-
+	e.Use(middleware.RequestLogger())
+	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: false,
 	}))
+
+	a.RegisterRoutes(e, a.serv)
 
 	return e.Start(address)
 }

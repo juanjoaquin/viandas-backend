@@ -1,6 +1,7 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = <pega_tu_token_aqui>
+@token = <pega_tu_access_token_aqui>
+@refreshToken = <pega_tu_refresh_token_aqui>
 
 ### ─────────────────────────────
 ### AUTH
@@ -45,6 +46,26 @@ Content-Type: application/json
 
 ### Me — perfil del usuario autenticado
 GET {{baseUrl}}/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTJjMWFmMDYtYzMxZS00YWUzLThiZTgtMWI5ZDIxZmE3OWQ5IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1NDgwMTksImlhdCI6MTc4MTQ2MTYxOX0.E87BFndaahsIRBXMfy5pwkAUfzTjqYDpUKLS0tQuk38
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNWRmYjYxY2EtYTA2NC00YjBjLWEzNGEtMWFiYTlhMWViNjg1IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1ODA3OTQsImlhdCI6MTc4MTU3OTg5NH0.b56QZD8IbezkisFGPPixQIurVUuKVjDgUGq1G8IWcP0
+
+###
+
+### Refresh — obtener nuevo access_token y refresh_token
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refreshToken}}"
+}
+
+###
+
+### Logout — revocar refresh_token
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refreshToken}}"
+}
 
 ###

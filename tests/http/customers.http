@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiODIzYmViODQtMzcwNS00OTE0LWI5NmMtNDZhOWZhMDc3M2E4IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1ODA4NjIsImlhdCI6MTc4MTQ5NDQ2Mn0.ci6rJf0wiotVJNpfxhNE9P_L_sntrOdXd8l6s2gXOWU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNWRmYjYxY2EtYTA2NC00YjBjLWEzNGEtMWFiYTlhMWViNjg1IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE2MTc1MDUsImlhdCI6MTc4MTYxNjYwNX0.NSFBJX48AvxoQGj-5IAUOPT1_qkvPvAUIOrHUbJuLbU
 @customerId = <pega_el_id_del_cliente>
 
 ### ─────────────────────────────

@@ -9,6 +9,7 @@ require (
 	github.com/go-playground/validator/v10 v10.30.3 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/labstack/echo/v5 v5.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lib/pq v1.12.3 // indirect

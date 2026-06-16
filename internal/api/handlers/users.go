@@ -61,15 +61,59 @@ func (h *UserHandler) Login(c *echo.Context) error {
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	token, err := encryption.SignedLoginToken(user)
+	accessToken, err := encryption.SignedLoginToken(user)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, "could not generate token", nil)
 	}
 
+	refreshToken, err := h.serv.CreateRefreshToken(ctx, user.ID)
+	if err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, "could not generate refresh token", nil)
+	}
+
 	return respond(c, http.StatusOK, "login successful", map[string]string{
-		"access_token": token,
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
 	})
+}
+
+func (h *UserHandler) Refresh(c *echo.Context) error {
+	ctx := c.Request().Context()
+	var params dtos.RefreshTokenRequest
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	accessToken, newRefreshToken, err := h.serv.RefreshAccessToken(ctx, params.RefreshToken)
+	if err != nil {
+		if err == service.ErrInvalidRefreshToken {
+			return respond(c, http.StatusUnauthorized, "invalid or expired refresh token", nil)
+		}
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "token refreshed", map[string]string{
+		"accessToken":  accessToken,
+		"refreshToken": newRefreshToken,
+	})
+}
+
+func (h *UserHandler) Logout(c *echo.Context) error {
+	ctx := c.Request().Context()
+	var params dtos.RefreshTokenRequest
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	if err := h.serv.RevokeRefreshToken(ctx, params.RefreshToken); err != nil {
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, "could not revoke token", nil)
+	}
+
+	return respond(c, http.StatusOK, "logged out successfully", nil)
 }
 
 func (h *UserHandler) Me(c *echo.Context) error {

@@ -15,6 +15,11 @@ type Repository interface {
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	GetUserByID(ctx context.Context, id string) (*entity.User, error)
 
+	// RefreshTokens
+	SaveRefreshToken(ctx context.Context, userID, token string, expiresAt time.Time) error
+	GetRefreshToken(ctx context.Context, token string) (*entity.RefreshToken, error)
+	DeleteRefreshToken(ctx context.Context, token string) error
+
 	// Customers
 	SaveCustomer(ctx context.Context, name, customerType string, phone, address *string) (*entity.Customer, error)
 	GetCustomers(ctx context.Context) ([]entity.Customer, error)

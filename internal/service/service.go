@@ -15,6 +15,9 @@ type Service interface {
 	RegisterUser(ctx context.Context, name, email, password, role string) error
 	LoginUser(ctx context.Context, email, password string) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	CreateRefreshToken(ctx context.Context, userID string) (string, error)
+	RefreshAccessToken(ctx context.Context, refreshToken string) (accessToken string, newRefreshToken string, err error)
+	RevokeRefreshToken(ctx context.Context, refreshToken string) error
 
 	// Customers
 	CreateCustomer(ctx context.Context, name, customerType string, phone, address *string) (*models.Customer, error)

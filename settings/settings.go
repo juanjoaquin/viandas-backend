@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"os"
 
+	"github.com/joho/godotenv"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -16,6 +17,7 @@ type DatabaseConfig struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Name     string `yaml:"name"`
+	SSLMode  string `yaml:"sslmode"`
 }
 
 type Settings struct {
@@ -24,10 +26,22 @@ type Settings struct {
 }
 
 func New() (*Settings, error) {
+	_ = godotenv.Load()
+
 	var s Settings
 
 	if err := yaml.Unmarshal(settingsFile, &s); err != nil {
 		return nil, err
+	}
+
+	applyEnvOverrides(&s)
+
+	return &s, nil
+}
+
+func applyEnvOverrides(s *Settings) {
+	if v := os.Getenv("PORT"); v != "" {
+		s.Port = v
 	}
 
 	if v := os.Getenv("DB_HOST"); v != "" {
@@ -45,6 +59,7 @@ func New() (*Settings, error) {
 	if v := os.Getenv("DB_NAME"); v != "" {
 		s.DB.Name = v
 	}
-
-	return &s, nil
+	if v := os.Getenv("DB_SSLMODE"); v != "" {
+		s.DB.SSLMode = v
+	}
 }
