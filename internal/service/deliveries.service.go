@@ -23,8 +23,8 @@ func (s *serv) CreateDelivery(ctx context.Context, name string, phone *string) (
 	}, nil
 }
 
-func (s *serv) GetDeliveries(ctx context.Context) ([]models.Delivery, error) {
-	entities, err := s.repo.GetDeliveries(ctx)
+func (s *serv) GetDeliveries(ctx context.Context, nameQuery string) ([]models.Delivery, error) {
+	entities, err := s.repo.GetDeliveries(ctx, nameQuery)
 	if err != nil {
 		return nil, err
 	}

@@ -18,9 +18,18 @@ func (r *repo) SaveDelivery(ctx context.Context, name string, phone *string) (*e
 	return &d, nil
 }
 
-func (r *repo) GetDeliveries(ctx context.Context) ([]entity.Delivery, error) {
+func (r *repo) GetDeliveries(ctx context.Context, nameQuery string) ([]entity.Delivery, error) {
 	var deliveries []entity.Delivery
-	err := r.db.SelectContext(ctx, &deliveries, `SELECT * FROM deliveries ORDER BY name`)
+	var err error
+
+	if nameQuery == "" {
+		err = r.db.SelectContext(ctx, &deliveries, `SELECT * FROM deliveries ORDER BY name`)
+	} else {
+		err = r.db.SelectContext(ctx, &deliveries,
+			`SELECT * FROM deliveries WHERE name ILIKE $1 ORDER BY name`,
+			"%"+nameQuery+"%",
+		)
+	}
 	return deliveries, err
 }
 

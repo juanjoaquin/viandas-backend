@@ -43,7 +43,7 @@ func (h *DeliveryHandler) GetAll(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	deliveries, err := h.serv.GetDeliveries(ctx)
+	deliveries, err := h.serv.GetDeliveries(ctx, c.QueryParam("q"))
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -80,14 +80,16 @@ func (h *DeliveryHandler) Update(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
 
 	var params dtos.UpdateDelivery
 	if err := c.Bind(&params); err != nil {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
 
-	if err := h.serv.UpdateDelivery(ctx, id, params.Name, optionalString(params.Phone), params.Active); err != nil {
+	if err := h.serv.UpdateDelivery(ctx, params.ID, params.Name, optionalString(params.Phone), params.Active); err != nil {
 		if err == service.ErrDeliveryNotFound {
 			return respond(c, http.StatusNotFound, "delivery not found", nil)
 		}

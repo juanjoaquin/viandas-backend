@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiODIzYmViODQtMzcwNS00OTE0LWI5NmMtNDZhOWZhMDc3M2E4IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1ODA4NjIsImlhdCI6MTc4MTQ5NDQ2Mn0.ci6rJf0wiotVJNpfxhNE9P_L_sntrOdXd8l6s2gXOWU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNWRmYjYxY2EtYTA2NC00YjBjLWEzNGEtMWFiYTlhMWViNjg1IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE4MjMyMDUsImlhdCI6MTc4MTgyMjMwNX0.4bciJKNXQN4DAV_j6TMuEJYG41WbZiPpW-qRQ6iMIgA
 @deliveryId = <pega_el_id_del_delivery>
 
 ### ─────────────────────────────
@@ -13,7 +13,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Juan Fernandez",
+  "name": "Diego Perez",
   "phone": "2804203212"
 }
 
@@ -36,6 +36,12 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar deliveries filtrando por nombre (?q=)
+GET {{baseUrl}}/deliveries?q=juan
+Authorization: Bearer {{token}}
+
+###
+
 ### Obtener delivery por ID
 GET {{baseUrl}}/deliveries/one?deliveryId=6c37450c-9fb3-4e7f-991f-6a5a4808418f
 Authorization: Bearer {{token}}
@@ -43,11 +49,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Actualizar delivery (ADMIN)
-PUT {{baseUrl}}/deliveries/{{deliveryId}}
+PUT {{baseUrl}}/deliveries
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{deliveryId}}",
   "name": "Juan P.",
   "phone": "2804207744",
   "active": true
@@ -56,11 +63,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Desactivar delivery (ADMIN)
-PUT {{baseUrl}}/deliveries/{{deliveryId}}
+PUT {{baseUrl}}/deliveries
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{deliveryId}}",
   "name": "Juan P.",
   "phone": "2804207744",
   "active": false

@@ -28,7 +28,7 @@ type Service interface {
 
 	// Deliveries
 	CreateDelivery(ctx context.Context, name string, phone *string) (*models.Delivery, error)
-	GetDeliveries(ctx context.Context) ([]models.Delivery, error)
+	GetDeliveries(ctx context.Context, nameQuery string) ([]models.Delivery, error)
 	GetDeliveryByID(ctx context.Context, id string) (*models.Delivery, error)
 	UpdateDelivery(ctx context.Context, id, name string, phone *string, active bool) error
 	DeleteDelivery(ctx context.Context, id string) error

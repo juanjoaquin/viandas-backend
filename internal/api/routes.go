@@ -35,9 +35,9 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	// Deliveries
 	deliveries := e.Group("/deliveries")
 	deliveries.POST("", deliveryH.Create)
-	deliveries.GET("", deliveryH.GetAll)
+	deliveries.GET("", deliveryH.GetAll) // ?q=<name>
 	deliveries.GET("/one", deliveryH.GetByID)
-	deliveries.PUT("/:id", deliveryH.Update)
+	deliveries.PUT("", deliveryH.Update)
 	deliveries.DELETE("", deliveryH.Delete)
 
 	// Menu Types
