@@ -92,7 +92,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Eliminar extra (ADMIN)
-DELETE {{baseUrl}}/extra-products/{{extraProductId}}
+DELETE {{baseUrl}}/extra-products
+Content-Type: application/json
 Authorization: Bearer {{token}}
+
+{
+  "id": "{{extraProductId}}"
+}
 
 ###

@@ -104,9 +104,16 @@ func (h *DeliveryHandler) Delete(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
 
-	if err := h.serv.DeleteDelivery(ctx, id); err != nil {
+	var params dtos.DeleteDelivery
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
+
+	if err := h.serv.DeleteDelivery(ctx, params.ID); err != nil {
 		if err == service.ErrDeliveryNotFound {
 			return respond(c, http.StatusNotFound, "delivery not found", nil)
 		}

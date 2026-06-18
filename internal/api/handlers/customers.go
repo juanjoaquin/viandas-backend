@@ -43,7 +43,13 @@ func (h *CustomerHandler) GetAll(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	customers, err := h.serv.GetCustomers(ctx)
+
+	typeFilter := c.QueryParam("type")
+	if typeFilter != "" && typeFilter != "COMPANY" && typeFilter != "PERSON" {
+		return respond(c, http.StatusBadRequest, "type must be COMPANY or PERSON", nil)
+	}
+
+	customers, err := h.serv.GetCustomers(ctx, c.QueryParam("q"), typeFilter)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -104,9 +110,16 @@ func (h *CustomerHandler) Delete(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
 
-	if err := h.serv.DeleteCustomer(ctx, id); err != nil {
+	var params dtos.DeleteCustomer
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
+
+	if err := h.serv.DeleteCustomer(ctx, params.ID); err != nil {
 		if err == service.ErrCustomerNotFound {
 			return respond(c, http.StatusNotFound, "customer not found", nil)
 		}

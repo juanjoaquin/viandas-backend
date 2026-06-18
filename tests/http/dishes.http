@@ -54,7 +54,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Eliminar plato (ADMIN)
-DELETE {{baseUrl}}/dishes/{{dishId}}
+DELETE {{baseUrl}}/dishes
+Content-Type: application/json
 Authorization: Bearer {{token}}
+
+{
+  "id": "{{dishId}}"
+}
 
 ###

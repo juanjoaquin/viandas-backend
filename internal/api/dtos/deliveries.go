@@ -10,3 +10,7 @@ type UpdateDelivery struct {
 	Phone  *string `json:"phone"`
 	Active bool    `json:"active"`
 }
+
+type DeleteDelivery struct {
+	ID string `json:"id" validate:"required,uuid"`
+}

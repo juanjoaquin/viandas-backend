@@ -104,9 +104,16 @@ func (h *ExtraProductHandler) Delete(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
 
-	if err := h.serv.DeleteExtraProduct(ctx, id); err != nil {
+	var params dtos.DeleteExtraProduct
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
+
+	if err := h.serv.DeleteExtraProduct(ctx, params.ID); err != nil {
 		if err == service.ErrExtraProductNotFound {
 			return respond(c, http.StatusNotFound, "extra product not found", nil)
 		}

@@ -21,7 +21,7 @@ type Service interface {
 
 	// Customers
 	CreateCustomer(ctx context.Context, name, customerType string, phone, address *string) (*models.Customer, error)
-	GetCustomers(ctx context.Context) ([]models.Customer, error)
+	GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]models.Customer, error)
 	GetCustomerByID(ctx context.Context, id string) (*models.Customer, error)
 	UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error
 	DeleteCustomer(ctx context.Context, id string) error

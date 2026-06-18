@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNWRmYjYxY2EtYTA2NC00YjBjLWEzNGEtMWFiYTlhMWViNjg1IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE2MTc1MDUsImlhdCI6MTc4MTYxNjYwNX0.NSFBJX48AvxoQGj-5IAUOPT1_qkvPvAUIOrHUbJuLbU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNWRmYjYxY2EtYTA2NC00YjBjLWEzNGEtMWFiYTlhMWViNjg1IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE3NTQ5MTEsImlhdCI6MTc4MTc1NDAxMX0.uG8im0zQWK042-ZMzAlgBPsyxJsmOlSZfhoZlqjqhT4
 @customerId = <pega_el_id_del_cliente>
 
 ### ─────────────────────────────
@@ -13,10 +13,10 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Aluar",
+  "name": "Infa",
   "type": "COMPANY",
   "phone": "2804207744",
-  "address": "Ruta 4"
+  "address": "Ruta 4, frente Aluar"
 }
 
 ###
@@ -55,14 +55,38 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Buscar clientes por nombre
+GET {{baseUrl}}/customers?q=aluar
+Authorization: Bearer {{token}}
+
+###
+
+### Filtrar clientes por tipo (empresa)
+GET {{baseUrl}}/customers?type=COMPANY
+Authorization: Bearer {{token}}
+
+###
+
+### Filtrar clientes por tipo (persona)
+GET {{baseUrl}}/customers?type=PERSON
+Authorization: Bearer {{token}}
+
+###
+
+### Buscar por nombre y tipo
+GET {{baseUrl}}/customers?q=juan&type=PERSON
+Authorization: Bearer {{token}}
+
+###
+
 ### Obtener cliente por ID
-GET {{baseUrl}}/customers/one?customerId=a07d734c-8f6c-456e-aad7-656ac9e749b6
+GET {{baseUrl}}/customers/one?customerId=83af75dc-793e-4caa-b806-4438eaed2263
 Authorization: Bearer {{token}}
 
 ###
 
 ### Actualizar cliente (ADMIN)
-PUT {{baseUrl}}/customers/{{customerId}}
+PUT {{baseUrl}}/customers/83af75dc-793e-4caa-b806-4438eaed2263
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -76,7 +100,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Eliminar cliente (ADMIN)
-DELETE {{baseUrl}}/customers/{{customerId}}
+DELETE {{baseUrl}}/customers
+Content-Type: application/json
 Authorization: Bearer {{token}}
+
+{
+  "id": "89071c02-2f9a-4733-847e-094a794da250"
+}
 
 ###

@@ -24,8 +24,8 @@ func (s *serv) CreateCustomer(ctx context.Context, name, customerType string, ph
 	}, nil
 }
 
-func (s *serv) GetCustomers(ctx context.Context) ([]models.Customer, error) {
-	entities, err := s.repo.GetCustomers(ctx)
+func (s *serv) GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]models.Customer, error) {
+	entities, err := s.repo.GetCustomers(ctx, nameQuery, typeFilter)
 	if err != nil {
 		return nil, err
 	}

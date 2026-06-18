@@ -11,3 +11,7 @@ type UpdateDish struct {
 	Description string `json:"description"`
 	Active      bool   `json:"active"`
 }
+
+type DeleteDish struct {
+	ID string `json:"id" validate:"required,uuid"`
+}

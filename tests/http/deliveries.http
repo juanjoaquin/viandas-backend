@@ -69,7 +69,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Eliminar delivery (ADMIN)
-DELETE {{baseUrl}}/deliveries/{{deliveryId}}
+DELETE {{baseUrl}}/deliveries
+Content-Type: application/json
 Authorization: Bearer {{token}}
+
+{
+  "id": "{{deliveryId}}"
+}
 
 ###

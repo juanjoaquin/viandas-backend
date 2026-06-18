@@ -27,10 +27,10 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	// Customers
 	customers := e.Group("/customers")
 	customers.POST("", customerH.Create)
-	customers.GET("", customerH.GetAll)
+	customers.GET("", customerH.GetAll) // ?q=<name>
 	customers.GET("/one", customerH.GetByID)
 	customers.PUT("/:id", customerH.Update)
-	customers.DELETE("/:id", customerH.Delete)
+	customers.DELETE("", customerH.Delete)
 
 	// Deliveries
 	deliveries := e.Group("/deliveries")
@@ -38,7 +38,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	deliveries.GET("", deliveryH.GetAll)
 	deliveries.GET("/one", deliveryH.GetByID)
 	deliveries.PUT("/:id", deliveryH.Update)
-	deliveries.DELETE("/:id", deliveryH.Delete)
+	deliveries.DELETE("", deliveryH.Delete)
 
 	// Menu Types
 	menuTypes := e.Group("/menu-types")
@@ -54,7 +54,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	dishes.GET("", dishH.GetAll) // ?menu_type_id=<uuid>
 	dishes.GET("/one", dishH.GetByID)
 	dishes.PUT("/:id", dishH.Update)
-	dishes.DELETE("/:id", dishH.Delete)
+	dishes.DELETE("", dishH.Delete)
 
 	// Extra Products
 	extras := e.Group("/extra-products")
@@ -62,7 +62,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	extras.GET("", extraH.GetAll)
 	extras.GET("/one", extraH.GetByID)
 	extras.PUT("/:id", extraH.Update)
-	extras.DELETE("/:id", extraH.Delete)
+	extras.DELETE("", extraH.Delete)
 
 	// Week Menus
 	weekMenus := e.Group("/week-menus")

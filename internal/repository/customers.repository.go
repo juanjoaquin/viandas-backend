@@ -18,9 +18,29 @@ func (r *repo) SaveCustomer(ctx context.Context, name, customerType string, phon
 	return &c, nil
 }
 
-func (r *repo) GetCustomers(ctx context.Context) ([]entity.Customer, error) {
+func (r *repo) GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]entity.Customer, error) {
 	var customers []entity.Customer
-	err := r.db.SelectContext(ctx, &customers, `SELECT * FROM customers ORDER BY name`)
+	var err error
+
+	switch {
+	case nameQuery == "" && typeFilter == "":
+		err = r.db.SelectContext(ctx, &customers, `SELECT * FROM customers ORDER BY name`)
+	case nameQuery != "" && typeFilter == "":
+		err = r.db.SelectContext(ctx, &customers,
+			`SELECT * FROM customers WHERE name ILIKE $1 ORDER BY name`,
+			"%"+nameQuery+"%",
+		)
+	case nameQuery == "" && typeFilter != "":
+		err = r.db.SelectContext(ctx, &customers,
+			`SELECT * FROM customers WHERE type = $1 ORDER BY name`,
+			typeFilter,
+		)
+	default:
+		err = r.db.SelectContext(ctx, &customers,
+			`SELECT * FROM customers WHERE name ILIKE $1 AND type = $2 ORDER BY name`,
+			"%"+nameQuery+"%", typeFilter,
+		)
+	}
 	return customers, err
 }
 

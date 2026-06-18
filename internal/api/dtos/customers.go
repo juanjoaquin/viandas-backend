@@ -13,3 +13,7 @@ type UpdateCustomer struct {
 	Phone   *string `json:"phone"`
 	Address *string `json:"address"`
 }
+
+type DeleteCustomer struct {
+	ID string `json:"id" validate:"required,uuid"`
+}

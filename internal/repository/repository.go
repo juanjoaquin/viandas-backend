@@ -22,7 +22,7 @@ type Repository interface {
 
 	// Customers
 	SaveCustomer(ctx context.Context, name, customerType string, phone, address *string) (*entity.Customer, error)
-	GetCustomers(ctx context.Context) ([]entity.Customer, error)
+	GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]entity.Customer, error)
 	GetCustomerByID(ctx context.Context, id string) (*entity.Customer, error)
 	UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error
 	DeleteCustomer(ctx context.Context, id string) error

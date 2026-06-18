@@ -115,9 +115,16 @@ func (h *DishHandler) Delete(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
 
-	if err := h.serv.DeleteDish(ctx, id); err != nil {
+	var params dtos.DeleteDish
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
+
+	if err := h.serv.DeleteDish(ctx, params.ID); err != nil {
 		if err == service.ErrDishNotFound {
 			return respond(c, http.StatusNotFound, "dish not found", nil)
 		}
