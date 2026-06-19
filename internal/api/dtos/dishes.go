@@ -7,8 +7,10 @@ type CreateDish struct {
 }
 
 type UpdateDish struct {
-	Name        string `json:"name"        validate:"required,min=2"`
+	ID          string `json:"id"           validate:"required,uuid"`
+	Name        string `json:"name"         validate:"required,min=2"`
 	Description string `json:"description"`
+	MenuTypeID  string `json:"menu_type_id" validate:"required"`
 	Active      bool   `json:"active"`
 }
 

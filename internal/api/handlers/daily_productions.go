@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/juanjoaquin/viandas-backend/internal/api/dtos"
@@ -60,13 +61,33 @@ func (h *DailyProductionHandler) GetByDate(c *echo.Context) error {
 
 	ctx := c.Request().Context()
 	dateStr := c.QueryParam("date")
+	nameQuery := strings.TrimSpace(c.QueryParam("q"))
+	fulfillmentType := strings.TrimSpace(c.QueryParam("fulfillment_type"))
+	deliveryID := strings.TrimSpace(c.QueryParam("delivery_id"))
+	menuTypeID := strings.TrimSpace(c.QueryParam("menu_type_id"))
+	sortBy := strings.TrimSpace(c.QueryParam("sort"))
+	sortOrder := strings.TrimSpace(c.QueryParam("order"))
 
 	date, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
 		return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
 	}
 
-	productions, err := h.serv.GetDailyProductions(ctx, date)
+	if fulfillmentType != "" &&
+		fulfillmentType != service.FulfillmentPending &&
+		fulfillmentType != service.FulfillmentDelivery &&
+		fulfillmentType != service.FulfillmentPickup {
+		return respond(c, http.StatusBadRequest, "invalid fulfillment_type", nil)
+	}
+
+	if sortBy != "" && sortBy != "quantity" {
+		return respond(c, http.StatusBadRequest, "invalid sort", nil)
+	}
+	if sortOrder != "" && sortOrder != "asc" && sortOrder != "desc" {
+		return respond(c, http.StatusBadRequest, "invalid order", nil)
+	}
+
+	productions, err := h.serv.GetDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -103,14 +124,16 @@ func (h *DailyProductionHandler) Update(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
 
 	var params dtos.UpdateDailyProduction
 	if err := c.Bind(&params); err != nil {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
 
-	if err := h.serv.UpdateDailyProduction(ctx, id, params.FulfillmentType, params.DeliveryID, params.Notes); err != nil {
+	if err := h.serv.UpdateDailyProduction(ctx, params.ID, params.FulfillmentType, params.DeliveryID, params.Notes); err != nil {
 		if err == service.ErrDailyProductionNotFound {
 			return respond(c, http.StatusNotFound, "daily production not found", nil)
 		}
@@ -122,6 +145,31 @@ func (h *DailyProductionHandler) Update(c *echo.Context) error {
 	}
 
 	return respond(c, http.StatusOK, "daily production updated", nil)
+}
+
+func (h *DailyProductionHandler) Delete(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	var params dtos.DeleteDailyProduction
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
+
+	if err := h.serv.DeleteDailyProduction(ctx, params.ID); err != nil {
+		if err == service.ErrDailyProductionNotFound {
+			return respond(c, http.StatusNotFound, "daily production not found", nil)
+		}
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "daily production deleted", nil)
 }
 
 func (h *DailyProductionHandler) UpsertLine(c *echo.Context) error {

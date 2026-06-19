@@ -54,7 +54,7 @@ func (h *DishHandler) GetAll(c *echo.Context) error {
 		return respond(c, http.StatusOK, "ok", dishes)
 	}
 
-	dishes, err := h.serv.GetDishes(ctx)
+	dishes, err := h.serv.GetDishes(ctx, c.QueryParam("q"))
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
@@ -91,14 +91,16 @@ func (h *DishHandler) Update(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	id := c.Param("id")
 
 	var params dtos.UpdateDish
 	if err := c.Bind(&params); err != nil {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
 
-	if err := h.serv.UpdateDish(ctx, id, params.Name, params.Description, params.Active); err != nil {
+	if err := h.serv.UpdateDish(ctx, params.ID, params.Name, params.Description, params.MenuTypeID, params.Active); err != nil {
 		if err == service.ErrDishNotFound {
 			return respond(c, http.StatusNotFound, "dish not found", nil)
 		}

@@ -44,16 +44,16 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	menuTypes := e.Group("/menu-types")
 	menuTypes.POST("", menuTypeH.Create)
 	menuTypes.GET("", menuTypeH.GetAll)
-	menuTypes.GET("/:id", menuTypeH.GetByID)
-	menuTypes.PUT("/:id", menuTypeH.Update)
-	menuTypes.DELETE("/:id", menuTypeH.Delete)
+	menuTypes.GET("/one", menuTypeH.GetByID)
+	menuTypes.PUT("", menuTypeH.Update)
+	menuTypes.DELETE("", menuTypeH.Delete)
 
 	// Dishes
 	dishes := e.Group("/dishes")
 	dishes.POST("", dishH.Create)
-	dishes.GET("", dishH.GetAll) // ?menu_type_id=<uuid>
+	dishes.GET("", dishH.GetAll) // ?q=<name>&menu_type_id=<uuid>
 	dishes.GET("/one", dishH.GetByID)
-	dishes.PUT("/:id", dishH.Update)
+	dishes.PUT("", dishH.Update)
 	dishes.DELETE("", dishH.Delete)
 
 	// Extra Products
@@ -70,6 +70,8 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	weekMenus.GET("", weekMenuH.GetAll)
 	weekMenus.GET("/menu", weekMenuH.GetMenuByDate) // ?date=2026-06-16
 	weekMenus.GET("/one", weekMenuH.GetByID)
+	weekMenus.GET("/resolved", weekMenuH.Resolve)
+	weekMenus.DELETE("/:id", weekMenuH.Delete)
 	weekMenus.POST("/:id/items", weekMenuH.AddItem)
 	weekMenus.PUT("/:id/items/:itemId", weekMenuH.UpdateItem)
 	weekMenus.DELETE("/:id/items/:itemId", weekMenuH.DeleteItem)
@@ -77,11 +79,12 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	// Daily Productions
 	daily := e.Group("/daily-productions")
 	daily.POST("", dailyH.Create)
-	daily.GET("", dailyH.GetByDate)                         // ?date=2026-06-16
-	daily.GET("/totals/kitchen", dailyH.GetKitchenTotals)   // ?date=2026-06-16
-	daily.GET("/totals/extras", dailyH.GetExtrasTotals)     // ?date=2026-06-16
+	daily.GET("", dailyH.GetByDate)                       // ?date=2026-06-16
+	daily.GET("/totals/kitchen", dailyH.GetKitchenTotals) // ?date=2026-06-16
+	daily.GET("/totals/extras", dailyH.GetExtrasTotals)   // ?date=2026-06-16
 	daily.GET("/one", dailyH.GetByID)
-	daily.PUT("/:id", dailyH.Update)
+	daily.PUT("", dailyH.Update)
+	daily.DELETE("", dailyH.Delete)
 	daily.PUT("/:id/lines", dailyH.UpsertLine)
 	daily.DELETE("/:id/lines/:lineId", dailyH.DeleteLine)
 	daily.POST("/:id/extras", dailyH.AddExtra)

@@ -35,17 +35,17 @@ type Service interface {
 
 	// MenuTypes
 	CreateMenuType(ctx context.Context, name string, price *float64) (*models.MenuType, error)
-	GetMenuTypes(ctx context.Context) ([]models.MenuType, error)
+	GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) ([]models.MenuType, error)
 	GetMenuTypeByID(ctx context.Context, id string) (*models.MenuType, error)
 	UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error
 	DeleteMenuType(ctx context.Context, id string) error
 
 	// Dishes
 	CreateDish(ctx context.Context, name, description, menuTypeID string) (*models.Dish, error)
-	GetDishes(ctx context.Context) ([]models.Dish, error)
+	GetDishes(ctx context.Context, nameQuery string) ([]models.Dish, error)
 	GetDishesByMenuTypeID(ctx context.Context, menuTypeID string) ([]models.Dish, error)
 	GetDishByID(ctx context.Context, id string) (*models.Dish, error)
-	UpdateDish(ctx context.Context, id, name, description string, active bool) error
+	UpdateDish(ctx context.Context, id, name, description, menuTypeID string, active bool) error
 	DeleteDish(ctx context.Context, id string) error
 
 	// ExtraProducts
@@ -59,15 +59,18 @@ type Service interface {
 	CreateWeekMenu(ctx context.Context, weekStartDate, weekEndDate time.Time, createdBy string) (*models.WeekMenu, error)
 	GetWeekMenus(ctx context.Context) ([]models.WeekMenu, error)
 	GetWeekMenuByID(ctx context.Context, id string) (*models.WeekMenu, error)
+	ResolveWeekMenu(ctx context.Context, requestedID string, date time.Time) (*models.WeekMenu, error)
+	DeleteWeekMenu(ctx context.Context, id string) error
 	AddWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, menuTypeID, dishID string) (*models.WeekMenuItem, error)
 	UpdateWeekMenuItem(ctx context.Context, id, dishID string) error
 	DeleteWeekMenuItem(ctx context.Context, id string) error
 
 	// DailyProductions
 	CreateDailyProduction(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string, lines []entity.ProductionLineInput) (*models.DailyProduction, error)
-	GetDailyProductions(ctx context.Context, date time.Time) ([]models.DailyProduction, error)
+	GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]models.DailyProduction, error)
 	GetDailyProductionByID(ctx context.Context, id string) (*models.DailyProduction, error)
 	UpdateDailyProduction(ctx context.Context, id string, fulfillmentType, deliveryID, notes *string) error
+	DeleteDailyProduction(ctx context.Context, id string) error
 	UpsertDailyProductionLine(ctx context.Context, dailyProductionID, menuTypeID string, quantity int) (*models.DailyProductionLine, error)
 	DeleteDailyProductionLine(ctx context.Context, id string) error
 	AddDailyProductionExtra(ctx context.Context, dailyProductionID, extraProductID string, quantity int) (*models.DailyProductionExtra, error)

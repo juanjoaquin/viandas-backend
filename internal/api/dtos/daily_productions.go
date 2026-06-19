@@ -15,9 +15,14 @@ type CreateDailyProduction struct {
 }
 
 type UpdateDailyProduction struct {
+	ID              string  `json:"id" validate:"required"`
 	FulfillmentType *string `json:"fulfillment_type"`
 	DeliveryID      *string `json:"delivery_id"`
 	Notes           *string `json:"notes"`
+}
+
+type DeleteDailyProduction struct {
+	ID string `json:"id" validate:"required"`
 }
 
 type UpsertDailyProductionLine struct {

@@ -39,8 +39,8 @@ func (s *serv) CreateDish(ctx context.Context, name, description, menuTypeID str
 	return s.dishToModel(ctx, d.ID, d.Name, d.Description, d.MenuTypeID, d.Active, d.CreatedAt.Format("2006-01-02T15:04:05Z")), nil
 }
 
-func (s *serv) GetDishes(ctx context.Context) ([]models.Dish, error) {
-	entities, err := s.repo.GetDishes(ctx)
+func (s *serv) GetDishes(ctx context.Context, nameQuery string) ([]models.Dish, error) {
+	entities, err := s.repo.GetDishes(ctx, nameQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -73,12 +73,12 @@ func (s *serv) GetDishByID(ctx context.Context, id string) (*models.Dish, error)
 	return s.dishToModel(ctx, d.ID, d.Name, d.Description, d.MenuTypeID, d.Active, d.CreatedAt.Format("2006-01-02T15:04:05Z")), nil
 }
 
-func (s *serv) UpdateDish(ctx context.Context, id, name, description string, active bool) error {
+func (s *serv) UpdateDish(ctx context.Context, id, name, description, menuTypeID string, active bool) error {
 	_, err := s.repo.GetDishByID(ctx, id)
 	if err != nil {
 		return ErrDishNotFound
 	}
-	return s.repo.UpdateDish(ctx, id, name, description, active)
+	return s.repo.UpdateDish(ctx, id, name, description, menuTypeID, active)
 }
 
 func (s *serv) DeleteDish(ctx context.Context, id string) error {

@@ -88,6 +88,50 @@ func (s *serv) GetWeekMenuByID(ctx context.Context, id string) (*models.WeekMenu
 	}, nil
 }
 
+func (s *serv) ResolveWeekMenu(ctx context.Context, requestedID string, date time.Time) (*models.WeekMenu, error) {
+	if requestedID != "" {
+		if menu, err := s.GetWeekMenuByID(ctx, requestedID); err == nil {
+			return menu, nil
+		}
+	}
+
+	menus, err := s.repo.GetWeekMenus(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if len(menus) == 0 {
+		return nil, ErrWeekMenuNotFound
+	}
+
+	for _, menu := range menus {
+		if !menu.WeekStartDate.After(date) && !menu.WeekEndDate.Before(date) {
+			return s.GetWeekMenuByID(ctx, menu.ID)
+		}
+	}
+
+	var upcomingID string
+	var upcomingStart time.Time
+	for _, menu := range menus {
+		if menu.WeekStartDate.After(date) && (upcomingID == "" || menu.WeekStartDate.Before(upcomingStart)) {
+			upcomingID = menu.ID
+			upcomingStart = menu.WeekStartDate
+		}
+	}
+	if upcomingID != "" {
+		return s.GetWeekMenuByID(ctx, upcomingID)
+	}
+
+	return s.GetWeekMenuByID(ctx, menus[0].ID)
+}
+
+func (s *serv) DeleteWeekMenu(ctx context.Context, id string) error {
+	if _, err := s.repo.GetWeekMenuByID(ctx, id); err != nil {
+		return ErrWeekMenuNotFound
+	}
+
+	return s.repo.DeleteWeekMenu(ctx, id)
+}
+
 func (s *serv) AddWeekMenuItem(ctx context.Context, weekMenuID string, menuDate time.Time, menuTypeID, dishID string) (*models.WeekMenuItem, error) {
 	item, err := s.repo.SaveWeekMenuItem(ctx, weekMenuID, menuDate, menuTypeID, dishID)
 	if err != nil {

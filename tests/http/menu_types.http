@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiODIzYmViODQtMzcwNS00OTE0LWI5NmMtNDZhOWZhMDc3M2E4IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE1ODA4NjIsImlhdCI6MTc4MTQ5NDQ2Mn0.ci6rJf0wiotVJNpfxhNE9P_L_sntrOdXd8l6s2gXOWU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNWRmYjYxY2EtYTA2NC00YjBjLWEzNGEtMWFiYTlhMWViNjg1IiwiZW1haWwiOiJhZG1pbkBhZG1pbi5jb20iLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3ODE4Mjk2OTEsImlhdCI6MTc4MTgyODc5MX0.JiMRg3qx6nJbszA-5b_zfizLJmSXW-yIqbadFY6ziGA
 @menuTypeId = <pega_el_id_del_tipo_de_menu>
 
 ### ─────────────────────────────
@@ -13,8 +13,32 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Buscar tipos de menú por nombre
+GET {{baseUrl}}/menu-types?q=veget
+Authorization: Bearer {{token}}
+
+###
+
+### Filtrar tipos de menú activos
+GET {{baseUrl}}/menu-types?active=true
+Authorization: Bearer {{token}}
+
+###
+
+### Filtrar tipos de menú inactivos
+GET {{baseUrl}}/menu-types?active=false
+Authorization: Bearer {{token}}
+
+###
+
+### Buscar por nombre y estado activo
+GET {{baseUrl}}/menu-types?q=menú&active=true
+Authorization: Bearer {{token}}
+
+###
+
 ### Obtener tipo de menú por ID
-GET {{baseUrl}}/menu-types/{{menuTypeId}}
+GET {{baseUrl}}/menu-types/one?menuTypeId={{menuTypeId}}
 Authorization: Bearer {{token}}
 
 ###
@@ -43,11 +67,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Actualizar tipo de menú (ADMIN)
-PUT {{baseUrl}}/menu-types/{{menuTypeId}}
+PUT {{baseUrl}}/menu-types
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{menuTypeId}}",
   "name": "Vegetariano",
   "price": 9000,
   "active": true
@@ -56,11 +81,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Quitar precio de tipo de menú (ADMIN)
-PUT {{baseUrl}}/menu-types/{{menuTypeId}}
+PUT {{baseUrl}}/menu-types
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{menuTypeId}}",
   "name": "Vegetariano",
   "price": null,
   "active": true
@@ -69,7 +95,12 @@ Authorization: Bearer {{token}}
 ###
 
 ### Eliminar tipo de menú (ADMIN)
-DELETE {{baseUrl}}/menu-types/{{menuTypeId}}
+DELETE {{baseUrl}}/menu-types
+Content-Type: application/json
 Authorization: Bearer {{token}}
+
+{
+  "id": "{{menuTypeId}}"
+}
 
 ###

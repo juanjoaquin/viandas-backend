@@ -33,7 +33,7 @@ func (s *serv) CreateDailyProduction(ctx context.Context, productionDate time.Ti
 	if fulfillmentType == FulfillmentPickup && deliveryID != "" {
 		return nil, ErrInvalidFulfillment
 	}
-	if fulfillmentType == FulfillmentPickup {
+	if fulfillmentType != FulfillmentDelivery {
 		deliveryID = ""
 	}
 
@@ -80,8 +80,8 @@ func (s *serv) CreateDailyProduction(ctx context.Context, productionDate time.Ti
 	return result, nil
 }
 
-func (s *serv) GetDailyProductions(ctx context.Context, date time.Time) ([]models.DailyProduction, error) {
-	entities, err := s.repo.GetDailyProductions(ctx, date)
+func (s *serv) GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]models.DailyProduction, error) {
+	entities, err := s.repo.GetDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -207,11 +207,19 @@ func (s *serv) UpdateDailyProduction(ctx context.Context, id string, fulfillment
 	if ft == FulfillmentPickup && did != "" {
 		return ErrInvalidFulfillment
 	}
-	if ft == FulfillmentPickup {
+	if ft != FulfillmentDelivery {
 		did = ""
 	}
 
 	return s.repo.UpdateDailyProduction(ctx, id, ft, did, n)
+}
+
+func (s *serv) DeleteDailyProduction(ctx context.Context, id string) error {
+	if _, err := s.repo.GetDailyProductionByID(ctx, id); err != nil {
+		return ErrDailyProductionNotFound
+	}
+
+	return s.repo.DeleteDailyProduction(ctx, id)
 }
 
 func (s *serv) UpsertDailyProductionLine(ctx context.Context, dailyProductionID, menuTypeID string, quantity int) (*models.DailyProductionLine, error) {
@@ -290,7 +298,7 @@ func (s *serv) GetMenuByDate(ctx context.Context, date time.Time) (*models.DayMe
 }
 
 func (s *serv) GetKitchenTotals(ctx context.Context, date time.Time) (*models.KitchenTotals, error) {
-	productions, err := s.repo.GetDailyProductions(ctx, date)
+	productions, err := s.repo.GetDailyProductions(ctx, date, "", "", "", "", "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +348,7 @@ func (s *serv) GetKitchenTotals(ctx context.Context, date time.Time) (*models.Ki
 }
 
 func (s *serv) GetExtrasTotals(ctx context.Context, date time.Time) (*models.ExtraTotals, error) {
-	productions, err := s.repo.GetDailyProductions(ctx, date)
+	productions, err := s.repo.GetDailyProductions(ctx, date, "", "", "", "", "", "")
 	if err != nil {
 		return nil, err
 	}

@@ -23,8 +23,8 @@ func (s *serv) CreateMenuType(ctx context.Context, name string, price *float64) 
 	}, nil
 }
 
-func (s *serv) GetMenuTypes(ctx context.Context) ([]models.MenuType, error) {
-	entities, err := s.repo.GetMenuTypes(ctx)
+func (s *serv) GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) ([]models.MenuType, error) {
+	entities, err := s.repo.GetMenuTypes(ctx, nameQuery, activeFilter)
 	if err != nil {
 		return nil, err
 	}

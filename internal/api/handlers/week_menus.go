@@ -86,6 +86,59 @@ func (h *WeekMenuHandler) GetByID(c *echo.Context) error {
 	return respond(c, http.StatusOK, "ok", menu)
 }
 
+func (h *WeekMenuHandler) Resolve(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	requestedID := c.QueryParam("weekMenuId")
+	date, err := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
+	if err != nil {
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	if dateStr := c.QueryParam("date"); dateStr != "" {
+		parsedDate, err := time.Parse("2006-01-02", dateStr)
+		if err != nil {
+			return respond(c, http.StatusBadRequest, "invalid date format, use YYYY-MM-DD", nil)
+		}
+		date = parsedDate
+	}
+
+	menu, err := h.serv.ResolveWeekMenu(ctx, requestedID, date)
+	if err != nil {
+		if err == service.ErrWeekMenuNotFound {
+			return respond(c, http.StatusNotFound, "week menu not found", nil)
+		}
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "ok", menu)
+}
+
+func (h *WeekMenuHandler) Delete(c *echo.Context) error {
+	if _, err := requireAdmin(c); err != nil {
+		return respond(c, http.StatusForbidden, "forbidden", nil)
+	}
+
+	ctx := c.Request().Context()
+	id := c.Param("id")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "week menu id is required", nil)
+	}
+
+	if err := h.serv.DeleteWeekMenu(ctx, id); err != nil {
+		if err == service.ErrWeekMenuNotFound {
+			return respond(c, http.StatusNotFound, "week menu not found", nil)
+		}
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "week menu deleted", nil)
+}
+
 func (h *WeekMenuHandler) AddItem(c *echo.Context) error {
 	if _, err := requireAdmin(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)

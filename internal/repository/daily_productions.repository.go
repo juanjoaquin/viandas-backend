@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
@@ -81,12 +83,64 @@ func (r *repo) SaveDailyProductionWithLines(ctx context.Context, productionDate 
 	return &dp, savedLines, nil
 }
 
-func (r *repo) GetDailyProductions(ctx context.Context, date time.Time) ([]entity.DailyProduction, error) {
+func (r *repo) GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]entity.DailyProduction, error) {
 	var productions []entity.DailyProduction
-	err := r.db.SelectContext(ctx, &productions,
-		`SELECT * FROM daily_productions WHERE production_date = $1 ORDER BY created_at`,
-		date,
+
+	args := []interface{}{date}
+	joins := []string{}
+	where := []string{"dp.production_date = $1"}
+
+	if nameQuery != "" {
+		joins = append(joins, "JOIN customers c ON c.id = dp.customer_id")
+		args = append(args, "%"+nameQuery+"%")
+		where = append(where, fmt.Sprintf("c.name ILIKE $%d", len(args)))
+	}
+
+	if fulfillmentType != "" {
+		args = append(args, fulfillmentType)
+		where = append(where, fmt.Sprintf("dp.fulfillment_type = $%d", len(args)))
+	}
+
+	if deliveryID != "" {
+		args = append(args, deliveryID)
+		where = append(where, fmt.Sprintf("dp.delivery_id = $%d", len(args)))
+	}
+
+	if menuTypeID != "" {
+		args = append(args, menuTypeID)
+		where = append(where, fmt.Sprintf(`EXISTS (
+			SELECT 1
+			FROM daily_production_lines dpl
+			WHERE dpl.daily_production_id = dp.id
+			  AND dpl.menu_type_id = $%d
+		)`, len(args)))
+	}
+
+	orderBy := "dp.created_at"
+	if sortBy == "quantity" {
+		direction := "DESC"
+		if sortOrder == "asc" {
+			direction = "ASC"
+		}
+		orderBy = fmt.Sprintf(`(
+			SELECT COALESCE(SUM(dpl.quantity), 0)
+			FROM daily_production_lines dpl
+			WHERE dpl.daily_production_id = dp.id
+		) %s, dp.created_at`, direction)
+	}
+
+	query := fmt.Sprintf(
+		`SELECT dp.*
+		 FROM daily_productions dp
+		 %s
+		 WHERE %s
+		 ORDER BY %s`,
+		strings.Join(joins, " "),
+		strings.Join(where, " AND "),
+		orderBy,
 	)
+
+	err := r.db.SelectContext(ctx, &productions, query, args...)
 	return productions, err
 }
 

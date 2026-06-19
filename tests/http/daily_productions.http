@@ -73,6 +73,42 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar producciones del día — filtrar por estado de entrega
+GET {{baseUrl}}/daily-productions?date=2026-06-15&fulfillment_type=DELIVERY
+Authorization: Bearer {{token}}
+
+###
+
+### Listar producciones del día — filtrar por tipo de menú
+GET {{baseUrl}}/daily-productions?date=2026-06-15&menu_type_id={{menuTypeId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Listar producciones del día — filtrar por repartidor
+GET {{baseUrl}}/daily-productions?date=2026-06-15&delivery_id={{deliveryId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Listar producciones del día — buscar por cliente
+GET {{baseUrl}}/daily-productions?date=2026-06-15&q=cliente
+Authorization: Bearer {{token}}
+
+###
+
+### Listar producciones del día — ordenar por mayor cantidad pedida
+GET {{baseUrl}}/daily-productions?date=2026-06-15&sort=quantity&order=desc
+Authorization: Bearer {{token}}
+
+###
+
+### Listar producciones del día — ordenar por menor cantidad pedida
+GET {{baseUrl}}/daily-productions?date=2026-06-15&sort=quantity&order=asc
+Authorization: Bearer {{token}}
+
+###
+
 ### Obtener producción por ID
 GET {{baseUrl}}/daily-productions/one?dailyProductionId={{dailyProductionId}}
 Authorization: Bearer {{token}}
@@ -81,11 +117,12 @@ Authorization: Bearer {{token}}
 
 ### Actualizar producción — asignar delivery a un PENDING
 ### Solo los campos enviados con valor no vacío se actualizan
-PUT {{baseUrl}}/daily-productions/{{dailyProductionId}}
+PUT {{baseUrl}}/daily-productions
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{dailyProductionId}}",
   "fulfillment_type": "DELIVERY",
   "delivery_id": "{{deliveryId}}"
 }
@@ -93,23 +130,36 @@ Authorization: Bearer {{token}}
 ###
 
 ### Actualizar producción — cambiar a PICKUP (limpia delivery_id automáticamente)
-PUT {{baseUrl}}/daily-productions/6ef15b2f-6453-43e0-ba3c-369414fa861d
+PUT {{baseUrl}}/daily-productions
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{dailyProductionId}}",
   "fulfillment_type": "PICKUP"
 }
 
 ###
 
 ### Actualizar solo notas (sin tocar fulfillment_type ni delivery)
-PUT {{baseUrl}}/daily-productions/{{dailyProductionId}}
+PUT {{baseUrl}}/daily-productions
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{dailyProductionId}}",
   "notes": "Sin gluten"
+}
+
+###
+
+### Eliminar producción completa (borra líneas y extras por cascade)
+DELETE {{baseUrl}}/daily-productions
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": "{{dailyProductionId}}"
 }
 
 ###

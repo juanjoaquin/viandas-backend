@@ -18,9 +18,29 @@ func (r *repo) SaveMenuType(ctx context.Context, name string, price *float64) (*
 	return &mt, nil
 }
 
-func (r *repo) GetMenuTypes(ctx context.Context) ([]entity.MenuType, error) {
+func (r *repo) GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) ([]entity.MenuType, error) {
 	var types []entity.MenuType
-	err := r.db.SelectContext(ctx, &types, `SELECT * FROM menu_types ORDER BY name`)
+	var err error
+
+	switch {
+	case nameQuery == "" && activeFilter == nil:
+		err = r.db.SelectContext(ctx, &types, `SELECT * FROM menu_types ORDER BY name`)
+	case nameQuery != "" && activeFilter == nil:
+		err = r.db.SelectContext(ctx, &types,
+			`SELECT * FROM menu_types WHERE name ILIKE $1 ORDER BY name`,
+			"%"+nameQuery+"%",
+		)
+	case nameQuery == "" && activeFilter != nil:
+		err = r.db.SelectContext(ctx, &types,
+			`SELECT * FROM menu_types WHERE active = $1 ORDER BY name`,
+			*activeFilter,
+		)
+	default:
+		err = r.db.SelectContext(ctx, &types,
+			`SELECT * FROM menu_types WHERE name ILIKE $1 AND active = $2 ORDER BY name`,
+			"%"+nameQuery+"%", *activeFilter,
+		)
+	}
 	return types, err
 }
 

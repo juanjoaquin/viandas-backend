@@ -36,17 +36,17 @@ type Repository interface {
 
 	// MenuTypes
 	SaveMenuType(ctx context.Context, name string, price *float64) (*entity.MenuType, error)
-	GetMenuTypes(ctx context.Context) ([]entity.MenuType, error)
+	GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) ([]entity.MenuType, error)
 	GetMenuTypeByID(ctx context.Context, id string) (*entity.MenuType, error)
 	UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error
 	DeleteMenuType(ctx context.Context, id string) error
 
 	// Dishes
 	SaveDish(ctx context.Context, name, description, menuTypeID string) (*entity.Dish, error)
-	GetDishes(ctx context.Context) ([]entity.Dish, error)
+	GetDishes(ctx context.Context, nameQuery string) ([]entity.Dish, error)
 	GetDishesByMenuTypeID(ctx context.Context, menuTypeID string) ([]entity.Dish, error)
 	GetDishByID(ctx context.Context, id string) (*entity.Dish, error)
-	UpdateDish(ctx context.Context, id, name, description string, active bool) error
+	UpdateDish(ctx context.Context, id, name, description, menuTypeID string, active bool) error
 	DeleteDish(ctx context.Context, id string) error
 
 	// ExtraProducts
@@ -73,7 +73,7 @@ type Repository interface {
 	// DailyProductions
 	SaveDailyProduction(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string) (*entity.DailyProduction, error)
 	SaveDailyProductionWithLines(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string, lines []entity.ProductionLineInput) (*entity.DailyProduction, []entity.DailyProductionLine, error)
-	GetDailyProductions(ctx context.Context, date time.Time) ([]entity.DailyProduction, error)
+	GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]entity.DailyProduction, error)
 	GetDailyProductionByID(ctx context.Context, id string) (*entity.DailyProduction, error)
 	UpdateDailyProduction(ctx context.Context, id, fulfillmentType, deliveryID, notes string) error
 	DeleteDailyProduction(ctx context.Context, id string) error
