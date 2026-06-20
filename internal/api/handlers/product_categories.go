@@ -9,82 +9,90 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-type ExtraProductHandler struct {
+type ProductCategoryHandler struct {
 	serv service.Service
 }
 
-func NewExtraProductHandler(serv service.Service) *ExtraProductHandler {
-	return &ExtraProductHandler{serv: serv}
+func NewProductCategoryHandler(serv service.Service) *ProductCategoryHandler {
+	return &ProductCategoryHandler{serv: serv}
 }
 
-func (h *ExtraProductHandler) Create(c *echo.Context) error {
+func (h *ProductCategoryHandler) Create(c *echo.Context) error {
 	if _, err := requireAdmin(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
 	ctx := c.Request().Context()
-	var params dtos.CreateExtraProduct
+	var params dtos.CreateProductCategory
 	if err := c.Bind(&params); err != nil {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	product, err := h.serv.CreateExtraProduct(ctx, params.Name, params.CategoryID, params.Price)
+	category, err := h.serv.CreateProductCategory(ctx, params.Name)
 	if err != nil {
-		if err == service.ErrProductCategoryNotFound {
-			return respond(c, http.StatusNotFound, "product category not found", nil)
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusCreated, "product category created", category)
+}
+
+func (h *ProductCategoryHandler) GetAll(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+
+	activeParam := c.QueryParam("active")
+	var activeFilter *bool
+	if activeParam != "" {
+		if activeParam != "true" && activeParam != "false" {
+			return respond(c, http.StatusBadRequest, "active must be true or false", nil)
 		}
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+		active := activeParam == "true"
+		activeFilter = &active
 	}
 
-	return respond(c, http.StatusCreated, "extra product created", product)
-}
-
-func (h *ExtraProductHandler) GetAll(c *echo.Context) error {
-	if _, err := requireStaff(c); err != nil {
-		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
-	}
-
-	ctx := c.Request().Context()
-	products, err := h.serv.GetExtraProducts(ctx, c.QueryParam("q"))
+	categories, err := h.serv.GetProductCategories(ctx, c.QueryParam("q"), activeFilter)
 	if err != nil {
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	return respond(c, http.StatusOK, "ok", products)
+	return respond(c, http.StatusOK, "ok", categories)
 }
 
-func (h *ExtraProductHandler) GetByID(c *echo.Context) error {
+func (h *ProductCategoryHandler) GetByID(c *echo.Context) error {
 	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
 	}
 
 	ctx := c.Request().Context()
-	id := c.QueryParam("extraProductId")
+	id := c.QueryParam("productCategoryId")
 	if id == "" {
-		return respond(c, http.StatusBadRequest, "extraProductId is required", nil)
+		return respond(c, http.StatusBadRequest, "productCategoryId is required", nil)
 	}
 
-	product, err := h.serv.GetExtraProductByID(ctx, id)
+	category, err := h.serv.GetProductCategoryByID(ctx, id)
 	if err != nil {
-		if err == service.ErrExtraProductNotFound {
-			return respond(c, http.StatusNotFound, "extra product not found", nil)
+		if err == service.ErrProductCategoryNotFound {
+			return respond(c, http.StatusNotFound, "product category not found", nil)
 		}
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	return respond(c, http.StatusOK, "ok", product)
+	return respond(c, http.StatusOK, "ok", category)
 }
 
-func (h *ExtraProductHandler) Update(c *echo.Context) error {
+func (h *ProductCategoryHandler) Update(c *echo.Context) error {
 	if _, err := requireAdmin(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
 	ctx := c.Request().Context()
 
-	var params dtos.UpdateExtraProduct
+	var params dtos.UpdateProductCategory
 	if err := c.Bind(&params); err != nil {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
@@ -92,10 +100,7 @@ func (h *ExtraProductHandler) Update(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "id is required", nil)
 	}
 
-	if err := h.serv.UpdateExtraProduct(ctx, params.ID, params.Name, params.CategoryID, params.Price, params.Active); err != nil {
-		if err == service.ErrExtraProductNotFound {
-			return respond(c, http.StatusNotFound, "extra product not found", nil)
-		}
+	if err := h.serv.UpdateProductCategory(ctx, params.ID, params.Name, params.Active); err != nil {
 		if err == service.ErrProductCategoryNotFound {
 			return respond(c, http.StatusNotFound, "product category not found", nil)
 		}
@@ -103,17 +108,17 @@ func (h *ExtraProductHandler) Update(c *echo.Context) error {
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	return respond(c, http.StatusOK, "extra product updated", nil)
+	return respond(c, http.StatusOK, "product category updated", nil)
 }
 
-func (h *ExtraProductHandler) Delete(c *echo.Context) error {
+func (h *ProductCategoryHandler) Delete(c *echo.Context) error {
 	if _, err := requireAdmin(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
 	ctx := c.Request().Context()
 
-	var params dtos.DeleteExtraProduct
+	var params dtos.DeleteProductCategory
 	if err := c.Bind(&params); err != nil {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
@@ -121,13 +126,13 @@ func (h *ExtraProductHandler) Delete(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "id is required", nil)
 	}
 
-	if err := h.serv.DeleteExtraProduct(ctx, params.ID); err != nil {
-		if err == service.ErrExtraProductNotFound {
-			return respond(c, http.StatusNotFound, "extra product not found", nil)
+	if err := h.serv.DeleteProductCategory(ctx, params.ID); err != nil {
+		if err == service.ErrProductCategoryNotFound {
+			return respond(c, http.StatusNotFound, "product category not found", nil)
 		}
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
 
-	return respond(c, http.StatusOK, "extra product deleted", nil)
+	return respond(c, http.StatusOK, "product category deleted", nil)
 }

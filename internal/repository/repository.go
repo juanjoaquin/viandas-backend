@@ -41,6 +41,13 @@ type Repository interface {
 	UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error
 	DeleteMenuType(ctx context.Context, id string) error
 
+	// ProductCategories
+	SaveProductCategory(ctx context.Context, name string) (*entity.ProductCategory, error)
+	GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) ([]entity.ProductCategory, error)
+	GetProductCategoryByID(ctx context.Context, id string) (*entity.ProductCategory, error)
+	UpdateProductCategory(ctx context.Context, id, name string, active bool) error
+	DeleteProductCategory(ctx context.Context, id string) error
+
 	// Dishes
 	SaveDish(ctx context.Context, name, description, menuTypeID string) (*entity.Dish, error)
 	GetDishes(ctx context.Context, nameQuery string) ([]entity.Dish, error)
@@ -50,10 +57,10 @@ type Repository interface {
 	DeleteDish(ctx context.Context, id string) error
 
 	// ExtraProducts
-	SaveExtraProduct(ctx context.Context, name, category string) (*entity.ExtraProduct, error)
-	GetExtraProducts(ctx context.Context) ([]entity.ExtraProduct, error)
+	SaveExtraProduct(ctx context.Context, name, categoryID string, price float64) (*entity.ExtraProduct, error)
+	GetExtraProducts(ctx context.Context, nameQuery string) ([]entity.ExtraProduct, error)
 	GetExtraProductByID(ctx context.Context, id string) (*entity.ExtraProduct, error)
-	UpdateExtraProduct(ctx context.Context, id, name string, active bool) error
+	UpdateExtraProduct(ctx context.Context, id, name, categoryID string, price float64, active bool) error
 	DeleteExtraProduct(ctx context.Context, id string) error
 
 	// WeekMenus
@@ -75,6 +82,7 @@ type Repository interface {
 	SaveDailyProductionWithLines(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string, lines []entity.ProductionLineInput) (*entity.DailyProduction, []entity.DailyProductionLine, error)
 	GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]entity.DailyProduction, error)
 	GetDailyProductionByID(ctx context.Context, id string) (*entity.DailyProduction, error)
+	GetDailyProductionByDateAndCustomer(ctx context.Context, productionDate time.Time, customerID string) (*entity.DailyProduction, error)
 	UpdateDailyProduction(ctx context.Context, id, fulfillmentType, deliveryID, notes string) error
 	DeleteDailyProduction(ctx context.Context, id string) error
 
@@ -87,6 +95,7 @@ type Repository interface {
 	// DailyProductionExtras
 	SaveDailyProductionExtra(ctx context.Context, dailyProductionID, extraProductID string, quantity int) (*entity.DailyProductionExtra, error)
 	GetDailyProductionExtras(ctx context.Context, dailyProductionID string) ([]entity.DailyProductionExtra, error)
+	UpdateDailyProductionExtra(ctx context.Context, dailyProductionID, id, extraProductID string, quantity int) (*entity.DailyProductionExtra, error)
 	DeleteDailyProductionExtra(ctx context.Context, id string) error
 }
 

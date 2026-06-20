@@ -12,6 +12,7 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	deliveryH := handlers.NewDeliveryHandler(serv)
 	menuTypeH := handlers.NewMenuTypeHandler(serv)
 	dishH := handlers.NewDishHandler(serv)
+	productCategoryH := handlers.NewProductCategoryHandler(serv)
 	extraH := handlers.NewExtraProductHandler(serv)
 	weekMenuH := handlers.NewWeekMenuHandler(serv)
 	dailyH := handlers.NewDailyProductionHandler(serv)
@@ -56,12 +57,20 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	dishes.PUT("", dishH.Update)
 	dishes.DELETE("", dishH.Delete)
 
+	// Product Categories
+	productCategories := e.Group("/product-categories")
+	productCategories.POST("", productCategoryH.Create)
+	productCategories.GET("", productCategoryH.GetAll)
+	productCategories.GET("/one", productCategoryH.GetByID)
+	productCategories.PUT("", productCategoryH.Update)
+	productCategories.DELETE("", productCategoryH.Delete)
+
 	// Extra Products
 	extras := e.Group("/extra-products")
 	extras.POST("", extraH.Create)
 	extras.GET("", extraH.GetAll)
 	extras.GET("/one", extraH.GetByID)
-	extras.PUT("/:id", extraH.Update)
+	extras.PUT("", extraH.Update)
 	extras.DELETE("", extraH.Delete)
 
 	// Week Menus
@@ -88,5 +97,6 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	daily.PUT("/:id/lines", dailyH.UpsertLine)
 	daily.DELETE("/:id/lines/:lineId", dailyH.DeleteLine)
 	daily.POST("/:id/extras", dailyH.AddExtra)
+	daily.PUT("/:id/extras/:extraId", dailyH.UpdateExtra)
 	daily.DELETE("/:id/extras/:extraId", dailyH.DeleteExtra)
 }

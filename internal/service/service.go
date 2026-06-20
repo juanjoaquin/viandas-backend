@@ -40,6 +40,13 @@ type Service interface {
 	UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error
 	DeleteMenuType(ctx context.Context, id string) error
 
+	// ProductCategories
+	CreateProductCategory(ctx context.Context, name string) (*models.ProductCategory, error)
+	GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) ([]models.ProductCategory, error)
+	GetProductCategoryByID(ctx context.Context, id string) (*models.ProductCategory, error)
+	UpdateProductCategory(ctx context.Context, id, name string, active bool) error
+	DeleteProductCategory(ctx context.Context, id string) error
+
 	// Dishes
 	CreateDish(ctx context.Context, name, description, menuTypeID string) (*models.Dish, error)
 	GetDishes(ctx context.Context, nameQuery string) ([]models.Dish, error)
@@ -49,10 +56,10 @@ type Service interface {
 	DeleteDish(ctx context.Context, id string) error
 
 	// ExtraProducts
-	CreateExtraProduct(ctx context.Context, name, category string) (*models.ExtraProduct, error)
-	GetExtraProducts(ctx context.Context) ([]models.ExtraProduct, error)
+	CreateExtraProduct(ctx context.Context, name, categoryID string, price float64) (*models.ExtraProduct, error)
+	GetExtraProducts(ctx context.Context, nameQuery string) ([]models.ExtraProduct, error)
 	GetExtraProductByID(ctx context.Context, id string) (*models.ExtraProduct, error)
-	UpdateExtraProduct(ctx context.Context, id, name string, active bool) error
+	UpdateExtraProduct(ctx context.Context, id, name, categoryID string, price float64, active bool) error
 	DeleteExtraProduct(ctx context.Context, id string) error
 
 	// WeekMenus
@@ -74,6 +81,7 @@ type Service interface {
 	UpsertDailyProductionLine(ctx context.Context, dailyProductionID, menuTypeID string, quantity int) (*models.DailyProductionLine, error)
 	DeleteDailyProductionLine(ctx context.Context, id string) error
 	AddDailyProductionExtra(ctx context.Context, dailyProductionID, extraProductID string, quantity int) (*models.DailyProductionExtra, error)
+	UpdateDailyProductionExtra(ctx context.Context, dailyProductionID, id, extraProductID string, quantity int) (*models.DailyProductionExtra, error)
 	DeleteDailyProductionExtra(ctx context.Context, id string) error
 
 	// Consultas especiales

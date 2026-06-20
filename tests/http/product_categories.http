@@ -1,0 +1,80 @@
+### Variables
+@baseUrl = http://localhost:8080
+@token = <pega_tu_token_aqui>
+@productCategoryId = <pega_el_id_de_la_categoria>
+
+### ─────────────────────────────
+### PRODUCT CATEGORIES
+### ─────────────────────────────
+
+### Crear categoría (ADMIN)
+POST {{baseUrl}}/product-categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Gaseosas"
+}
+
+###
+
+### Listar categorías
+GET {{baseUrl}}/product-categories
+Authorization: Bearer {{token}}
+
+###
+
+### Listar categorías activas
+GET {{baseUrl}}/product-categories?active=true
+Authorization: Bearer {{token}}
+
+###
+
+### Buscar categorías por nombre
+GET {{baseUrl}}/product-categories?q=gase
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener categoría por ID
+GET {{baseUrl}}/product-categories/one?productCategoryId={{productCategoryId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Actualizar categoría (ADMIN)
+PUT {{baseUrl}}/product-categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": "{{productCategoryId}}",
+  "name": "Bebidas",
+  "active": true
+}
+
+###
+
+### Desactivar categoría (ADMIN)
+PUT {{baseUrl}}/product-categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": "{{productCategoryId}}",
+  "name": "Gaseosas",
+  "active": false
+}
+
+###
+
+### Eliminar categoría (ADMIN)
+DELETE {{baseUrl}}/product-categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": "{{productCategoryId}}"
+}
+
+###

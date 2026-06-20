@@ -49,13 +49,22 @@ CREATE TABLE dishes (
     updated_at   TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE extra_products (
+CREATE TABLE product_categories (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name       VARCHAR(255) NOT NULL,
-    category   VARCHAR(30)  NOT NULL CHECK (category IN ('SALAD', 'SANDWICH')),
+    name       VARCHAR(100) NOT NULL UNIQUE,
     active     BOOLEAN      NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP    NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE extra_products (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name        VARCHAR(255) NOT NULL,
+    category_id UUID         NOT NULL REFERENCES product_categories(id),
+    price       NUMERIC(10,2) NOT NULL,
+    active      BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE week_menus (

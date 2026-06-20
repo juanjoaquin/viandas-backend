@@ -23,6 +23,7 @@ type DailyProductionExtra struct {
 	ID           string        `json:"id"`
 	ExtraProduct *ExtraProduct `json:"extra_product,omitempty"`
 	Quantity     int           `json:"quantity"`
+	TotalAmount  *float64      `json:"total_amount,omitempty"`
 }
 
 type KitchenTotals struct {
@@ -38,11 +39,13 @@ type MenuTypeTotalQty struct {
 }
 
 type ExtraTotals struct {
-	Date   string       `json:"date"`
-	Totals []ExtraTotal `json:"totals"`
+	Date       string       `json:"date"`
+	Totals     []ExtraTotal `json:"totals"`
+	GrandTotal *float64     `json:"grand_total"`
 }
 
 type ExtraTotal struct {
 	ExtraProduct *ExtraProduct `json:"extra_product"`
 	TotalQty     int           `json:"total_qty"`
+	TotalAmount  *float64      `json:"total_amount"`
 }

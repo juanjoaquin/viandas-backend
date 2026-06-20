@@ -47,6 +47,9 @@ func (h *DailyProductionHandler) Create(c *echo.Context) error {
 		if err == service.ErrInvalidFulfillment {
 			return respond(c, http.StatusBadRequest, err.Error(), nil)
 		}
+		if err == service.ErrDailyProductionAlreadyExists {
+			return respond(c, http.StatusConflict, err.Error(), nil)
+		}
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
@@ -230,6 +233,32 @@ func (h *DailyProductionHandler) AddExtra(c *echo.Context) error {
 	}
 
 	return respond(c, http.StatusCreated, "extra added", extra)
+}
+
+func (h *DailyProductionHandler) UpdateExtra(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	id := c.Param("id")
+	extraID := c.Param("extraId")
+
+	var params dtos.UpdateDailyProductionExtra
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	extra, err := h.serv.UpdateDailyProductionExtra(ctx, id, extraID, params.ExtraProductID, params.Quantity)
+	if err != nil {
+		if err == service.ErrDailyProductionExtraNotFound {
+			return respond(c, http.StatusNotFound, "daily production extra not found", nil)
+		}
+		log.Println(err)
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "extra updated", extra)
 }
 
 func (h *DailyProductionHandler) DeleteExtra(c *echo.Context) error {

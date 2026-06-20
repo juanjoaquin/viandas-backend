@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -153,6 +155,21 @@ func (r *repo) GetDailyProductionByID(ctx context.Context, id string) (*entity.D
 	return &dp, nil
 }
 
+func (r *repo) GetDailyProductionByDateAndCustomer(ctx context.Context, productionDate time.Time, customerID string) (*entity.DailyProduction, error) {
+	var dp entity.DailyProduction
+	err := r.db.GetContext(ctx, &dp,
+		`SELECT * FROM daily_productions WHERE production_date = $1 AND customer_id = $2`,
+		productionDate, customerID,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &dp, nil
+}
+
 func (r *repo) UpdateDailyProduction(ctx context.Context, id, fulfillmentType, deliveryID, notes string) error {
 	var deliveryArg interface{}
 	if deliveryID != "" {
@@ -246,6 +263,23 @@ func (r *repo) GetDailyProductionExtras(ctx context.Context, dailyProductionID s
 		dailyProductionID,
 	)
 	return extras, err
+}
+
+func (r *repo) UpdateDailyProductionExtra(ctx context.Context, dailyProductionID, id, extraProductID string, quantity int) (*entity.DailyProductionExtra, error) {
+	var extra entity.DailyProductionExtra
+	err := r.db.QueryRowxContext(ctx,
+		`UPDATE daily_production_extras
+		 SET extra_product_id = $1,
+		     quantity = $2,
+		     updated_at = NOW()
+		 WHERE id = $3 AND daily_production_id = $4
+		 RETURNING *`,
+		extraProductID, quantity, id, dailyProductionID,
+	).StructScan(&extra)
+	if err != nil {
+		return nil, err
+	}
+	return &extra, nil
 }
 
 func (r *repo) DeleteDailyProductionExtra(ctx context.Context, id string) error {

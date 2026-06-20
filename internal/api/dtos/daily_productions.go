@@ -34,3 +34,8 @@ type AddDailyProductionExtra struct {
 	ExtraProductID string `json:"extra_product_id" validate:"required"`
 	Quantity       int    `json:"quantity"         validate:"required,min=1"`
 }
+
+type UpdateDailyProductionExtra struct {
+	ExtraProductID string `json:"extra_product_id" validate:"required"`
+	Quantity       int    `json:"quantity"         validate:"required,min=1"`
+}

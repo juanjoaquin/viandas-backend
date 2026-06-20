@@ -2,55 +2,34 @@
 @baseUrl = http://localhost:8080
 @token = <pega_tu_token_aqui>
 @extraProductId = <pega_el_id_del_extra>
+@productCategoryId = <pega_el_id_de_la_categoria>
 
 ### ─────────────────────────────
 ### EXTRA PRODUCTS
 ### ─────────────────────────────
 
-### Crear ensalada (ADMIN)
+### Crear producto (ADMIN)
+POST {{baseUrl}}/extra-products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Fanta",
+  "category_id": "{{productCategoryId}}",
+  "price": 1200
+}
+
+###
+
+### Crear otro producto (ADMIN)
 POST {{baseUrl}}/extra-products
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
   "name": "Ensalada César",
-  "category": "SALAD"
-}
-
-###
-
-### Crear otra ensalada (ADMIN)
-POST {{baseUrl}}/extra-products
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "name": "Ensalada Completa",
-  "category": "SALAD"
-}
-
-###
-
-### Crear sándwich (ADMIN)
-POST {{baseUrl}}/extra-products
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "name": "Sándwich de Pollo",
-  "category": "SANDWICH"
-}
-
-###
-
-### Crear otro sándwich (ADMIN)
-POST {{baseUrl}}/extra-products
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "name": "Sándwich Jamón y Queso",
-  "category": "SANDWICH"
+  "category_id": "{{productCategoryId}}",
+  "price": 3500
 }
 
 ###
@@ -68,24 +47,30 @@ Authorization: Bearer {{token}}
 ###
 
 ### Actualizar extra (ADMIN)
-PUT {{baseUrl}}/extra-products/{{extraProductId}}
+PUT {{baseUrl}}/extra-products
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{extraProductId}}",
   "name": "Ensalada César Actualizada",
+  "category_id": "{{productCategoryId}}",
+  "price": 3800,
   "active": true
 }
 
 ###
 
 ### Desactivar extra (ADMIN)
-PUT {{baseUrl}}/extra-products/{{extraProductId}}
+PUT {{baseUrl}}/extra-products
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "id": "{{extraProductId}}",
   "name": "Ensalada César",
+  "category_id": "{{productCategoryId}}",
+  "price": 3500,
   "active": false
 }
 

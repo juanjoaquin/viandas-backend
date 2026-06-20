@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
@@ -10,6 +11,8 @@ import (
 )
 
 var ErrDailyProductionNotFound = errors.New("daily production not found")
+var ErrDailyProductionExtraNotFound = errors.New("daily production extra not found")
+var ErrDailyProductionAlreadyExists = errors.New("este cliente ya tiene una producción para esta fecha")
 var ErrInvalidFulfillment = errors.New("PICKUP cannot have a delivery_id")
 
 const (
@@ -37,6 +40,14 @@ func (s *serv) CreateDailyProduction(ctx context.Context, productionDate time.Ti
 		deliveryID = ""
 	}
 
+	existing, err := s.repo.GetDailyProductionByDateAndCustomer(ctx, productionDate, customerID)
+	if err != nil {
+		return nil, err
+	}
+	if existing != nil {
+		return nil, ErrDailyProductionAlreadyExists
+	}
+
 	var dp *entity.DailyProduction
 	var savedLines []entity.DailyProductionLine
 
@@ -44,12 +55,18 @@ func (s *serv) CreateDailyProduction(ctx context.Context, productionDate time.Ti
 		var err error
 		dp, err = s.repo.SaveDailyProduction(ctx, productionDate, customerID, fulfillmentType, deliveryID, notes, createdBy)
 		if err != nil {
+			if isDailyProductionDuplicate(err) {
+				return nil, ErrDailyProductionAlreadyExists
+			}
 			return nil, err
 		}
 	} else {
 		var err error
 		dp, savedLines, err = s.repo.SaveDailyProductionWithLines(ctx, productionDate, customerID, fulfillmentType, deliveryID, notes, createdBy, lines)
 		if err != nil {
+			if isDailyProductionDuplicate(err) {
+				return nil, ErrDailyProductionAlreadyExists
+			}
 			return nil, err
 		}
 	}
@@ -119,14 +136,16 @@ func (s *serv) GetDailyProductions(ctx context.Context, date time.Time, nameQuer
 		extraModels := make([]models.DailyProductionExtra, len(extras))
 		for j, ex := range extras {
 			ep, _ := s.repo.GetExtraProductByID(ctx, ex.ExtraProductID)
-			var epModel *models.ExtraProduct
-			if ep != nil {
-				epModel = &models.ExtraProduct{ID: ep.ID, Name: ep.Name, Category: ep.Category}
+			epModel := s.mapExtraProduct(ctx, ep)
+			var totalAmount *float64
+			if epModel != nil {
+				totalAmount = extraLineTotalAmount(epModel.Price, ex.Quantity)
 			}
 			extraModels[j] = models.DailyProductionExtra{
 				ID:           ex.ID,
 				ExtraProduct: epModel,
 				Quantity:     ex.Quantity,
+				TotalAmount:  totalAmount,
 			}
 		}
 
@@ -249,15 +268,41 @@ func (s *serv) AddDailyProductionExtra(ctx context.Context, dailyProductionID, e
 	}
 
 	ep, _ := s.repo.GetExtraProductByID(ctx, extra.ExtraProductID)
-	var epModel *models.ExtraProduct
-	if ep != nil {
-		epModel = &models.ExtraProduct{ID: ep.ID, Name: ep.Name, Category: ep.Category}
+	epModel := s.mapExtraProduct(ctx, ep)
+	var totalAmount *float64
+	if epModel != nil {
+		totalAmount = extraLineTotalAmount(epModel.Price, extra.Quantity)
 	}
 
 	return &models.DailyProductionExtra{
 		ID:           extra.ID,
 		ExtraProduct: epModel,
 		Quantity:     extra.Quantity,
+		TotalAmount:  totalAmount,
+	}, nil
+}
+
+func (s *serv) UpdateDailyProductionExtra(ctx context.Context, dailyProductionID, id, extraProductID string, quantity int) (*models.DailyProductionExtra, error) {
+	extra, err := s.repo.UpdateDailyProductionExtra(ctx, dailyProductionID, id, extraProductID, quantity)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrDailyProductionExtraNotFound
+		}
+		return nil, err
+	}
+
+	ep, _ := s.repo.GetExtraProductByID(ctx, extra.ExtraProductID)
+	epModel := s.mapExtraProduct(ctx, ep)
+	var totalAmount *float64
+	if epModel != nil {
+		totalAmount = extraLineTotalAmount(epModel.Price, extra.Quantity)
+	}
+
+	return &models.DailyProductionExtra{
+		ID:           extra.ID,
+		ExtraProduct: epModel,
+		Quantity:     extra.Quantity,
+		TotalAmount:  totalAmount,
 	}, nil
 }
 
@@ -362,19 +407,34 @@ func (s *serv) GetExtrasTotals(ctx context.Context, date time.Time) (*models.Ext
 		for _, ex := range extras {
 			if _, exists := totalsMap[ex.ExtraProductID]; !exists {
 				ep, _ := s.repo.GetExtraProductByID(ctx, ex.ExtraProductID)
-				var epModel *models.ExtraProduct
-				if ep != nil {
-					epModel = &models.ExtraProduct{ID: ep.ID, Name: ep.Name, Category: ep.Category}
-				}
+				epModel := s.mapExtraProduct(ctx, ep)
 				totalsMap[ex.ExtraProductID] = &models.ExtraTotal{ExtraProduct: epModel, TotalQty: 0}
 			}
 			totalsMap[ex.ExtraProductID].TotalQty += ex.Quantity
 		}
 	}
 
-	totals := &models.ExtraTotals{Date: date.Format("2006-01-02")}
+	totals := &models.ExtraTotals{
+		Date:   date.Format("2006-01-02"),
+		Totals: make([]models.ExtraTotal, 0, len(totalsMap)),
+	}
+
+	var grandTotal float64
+	hasAnyPrice := false
+
 	for _, t := range totalsMap {
+		if t.ExtraProduct != nil && t.ExtraProduct.Price > 0 {
+			amount := float64(t.TotalQty) * t.ExtraProduct.Price
+			t.TotalAmount = &amount
+			grandTotal += amount
+			hasAnyPrice = true
+		}
 		totals.Totals = append(totals.Totals, *t)
 	}
+
+	if hasAnyPrice {
+		totals.GrandTotal = &grandTotal
+	}
+
 	return totals, nil
 }
