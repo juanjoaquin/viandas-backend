@@ -30,8 +30,12 @@ func (s *serv) CreateProductCategory(ctx context.Context, name string) (*models.
 	return mapProductCategory(category), nil
 }
 
-func (s *serv) GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) ([]models.ProductCategory, error) {
-	entities, err := s.repo.GetProductCategories(ctx, nameQuery, activeFilter)
+func (s *serv) CountProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) (int, error) {
+	return s.repo.CountProductCategories(ctx, nameQuery, activeFilter)
+}
+
+func (s *serv) GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]models.ProductCategory, error) {
+	entities, err := s.repo.GetProductCategories(ctx, nameQuery, activeFilter, offset, limit)
 	if err != nil {
 		return nil, err
 	}

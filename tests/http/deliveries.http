@@ -36,6 +36,12 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar deliveries paginados
+GET {{baseUrl}}/deliveries?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
 ### Listar deliveries filtrando por nombre (?q=)
 GET {{baseUrl}}/deliveries?q=juan
 Authorization: Bearer {{token}}

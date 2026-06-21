@@ -10,11 +10,12 @@ import (
 )
 
 type ExtraProductHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewExtraProductHandler(serv service.Service) *ExtraProductHandler {
-	return &ExtraProductHandler{serv: serv}
+func NewExtraProductHandler(serv service.Service, paginatorLimitDefault string) *ExtraProductHandler {
+	return &ExtraProductHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func (h *ExtraProductHandler) Create(c *echo.Context) error {
@@ -46,13 +47,16 @@ func (h *ExtraProductHandler) GetAll(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	products, err := h.serv.GetExtraProducts(ctx, c.QueryParam("q"))
-	if err != nil {
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
-	}
+	nameQuery := c.QueryParam("q")
 
-	return respond(c, http.StatusOK, "ok", products)
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountExtraProducts(ctx, nameQuery)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetExtraProducts(ctx, nameQuery, offset, limit)
+		},
+	)
 }
 
 func (h *ExtraProductHandler) GetByID(c *echo.Context) error {

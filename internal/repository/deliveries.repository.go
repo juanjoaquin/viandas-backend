@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 )
@@ -18,18 +19,27 @@ func (r *repo) SaveDelivery(ctx context.Context, name string, phone *string) (*e
 	return &d, nil
 }
 
-func (r *repo) GetDeliveries(ctx context.Context, nameQuery string) ([]entity.Delivery, error) {
-	var deliveries []entity.Delivery
-	var err error
-
+func buildDeliveryWhere(nameQuery string) (string, []interface{}) {
 	if nameQuery == "" {
-		err = r.db.SelectContext(ctx, &deliveries, `SELECT * FROM deliveries ORDER BY name`)
-	} else {
-		err = r.db.SelectContext(ctx, &deliveries,
-			`SELECT * FROM deliveries WHERE name ILIKE $1 ORDER BY name`,
-			"%"+nameQuery+"%",
-		)
+		return "", nil
 	}
+	return " WHERE name ILIKE $1", []interface{}{"%" + nameQuery + "%"}
+}
+
+func (r *repo) CountDeliveries(ctx context.Context, nameQuery string) (int, error) {
+	where, args := buildDeliveryWhere(nameQuery)
+	var count int
+	err := r.db.GetContext(ctx, &count, `SELECT COUNT(*) FROM deliveries`+where, args...)
+	return count, err
+}
+
+func (r *repo) GetDeliveries(ctx context.Context, nameQuery string, offset, limit int) ([]entity.Delivery, error) {
+	where, args := buildDeliveryWhere(nameQuery)
+	args = append(args, limit, offset)
+	query := fmt.Sprintf(`SELECT * FROM deliveries%s ORDER BY name LIMIT $%d OFFSET $%d`, where, len(args)-1, len(args))
+
+	var deliveries []entity.Delivery
+	err := r.db.SelectContext(ctx, &deliveries, query, args...)
 	return deliveries, err
 }
 

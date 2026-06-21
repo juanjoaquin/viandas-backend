@@ -21,8 +21,9 @@ type DatabaseConfig struct {
 }
 
 type Settings struct {
-	Port string         `yaml:"port"`
-	DB   DatabaseConfig `yaml:"database"`
+	Port                    string         `yaml:"port"`
+	PaginatorLimitDefault   string         `yaml:"paginator_limit_default"`
+	DB                      DatabaseConfig `yaml:"database"`
 }
 
 func New() (*Settings, error) {
@@ -61,5 +62,12 @@ func applyEnvOverrides(s *Settings) {
 	}
 	if v := os.Getenv("DB_SSLMODE"); v != "" {
 		s.DB.SSLMode = v
+	}
+
+	if v := os.Getenv("PAGINATOR_LIMIT_DEFAULT"); v != "" {
+		s.PaginatorLimitDefault = v
+	}
+	if s.PaginatorLimitDefault == "" {
+		s.PaginatorLimitDefault = "10"
 	}
 }

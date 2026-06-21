@@ -28,6 +28,12 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar platos paginados
+GET {{baseUrl}}/dishes?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
 ### Listar platos filtrando por nombre
 GET {{baseUrl}}/dishes
 Authorization: Bearer {{token}}

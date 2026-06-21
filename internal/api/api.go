@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/juanjoaquin/viandas-backend/internal/service"
+	"github.com/juanjoaquin/viandas-backend/settings"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
@@ -18,12 +19,14 @@ type DataResponse struct {
 
 type API struct {
 	serv          service.Service
+	settings      *settings.Settings
 	dataValidator *validator.Validate
 }
 
-func New(serv service.Service) *API {
+func New(serv service.Service, settings *settings.Settings) *API {
 	return &API{
 		serv:          serv,
+		settings:      settings,
 		dataValidator: validator.New(),
 	}
 }
@@ -38,7 +41,7 @@ func (a *API) Start(e *echo.Echo, address string) error {
 		AllowCredentials: false,
 	}))
 
-	a.RegisterRoutes(e, a.serv)
+	a.RegisterRoutes(e, a.serv, a.settings.PaginatorLimitDefault)
 
 	return e.Start(address)
 }

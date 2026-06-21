@@ -97,8 +97,12 @@ func (s *serv) CreateDailyProduction(ctx context.Context, productionDate time.Ti
 	return result, nil
 }
 
-func (s *serv) GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]models.DailyProduction, error) {
-	entities, err := s.repo.GetDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
+func (s *serv) CountDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) (int, error) {
+	return s.repo.CountDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
+}
+
+func (s *serv) GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string, offset, limit int) ([]models.DailyProduction, error) {
+	entities, err := s.repo.GetDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +347,7 @@ func (s *serv) GetMenuByDate(ctx context.Context, date time.Time) (*models.DayMe
 }
 
 func (s *serv) GetKitchenTotals(ctx context.Context, date time.Time) (*models.KitchenTotals, error) {
-	productions, err := s.repo.GetDailyProductions(ctx, date, "", "", "", "", "", "")
+	productions, err := s.repo.GetDailyProductions(ctx, date, "", "", "", "", "", "", 0, unlimitedListLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -393,7 +397,7 @@ func (s *serv) GetKitchenTotals(ctx context.Context, date time.Time) (*models.Ki
 }
 
 func (s *serv) GetExtrasTotals(ctx context.Context, date time.Time) (*models.ExtraTotals, error) {
-	productions, err := s.repo.GetDailyProductions(ctx, date, "", "", "", "", "", "")
+	productions, err := s.repo.GetDailyProductions(ctx, date, "", "", "", "", "", "", 0, unlimitedListLimit)
 	if err != nil {
 		return nil, err
 	}

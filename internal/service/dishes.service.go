@@ -39,8 +39,12 @@ func (s *serv) CreateDish(ctx context.Context, name, description, menuTypeID str
 	return s.dishToModel(ctx, d.ID, d.Name, d.Description, d.MenuTypeID, d.Active, d.CreatedAt.Format("2006-01-02T15:04:05Z")), nil
 }
 
-func (s *serv) GetDishes(ctx context.Context, nameQuery string) ([]models.Dish, error) {
-	entities, err := s.repo.GetDishes(ctx, nameQuery)
+func (s *serv) CountDishes(ctx context.Context, nameQuery, menuTypeID string) (int, error) {
+	return s.repo.CountDishes(ctx, nameQuery, menuTypeID)
+}
+
+func (s *serv) GetDishes(ctx context.Context, nameQuery, menuTypeID string, offset, limit int) ([]models.Dish, error) {
+	entities, err := s.repo.GetDishes(ctx, nameQuery, menuTypeID, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +56,8 @@ func (s *serv) GetDishes(ctx context.Context, nameQuery string) ([]models.Dish, 
 	return dishes, nil
 }
 
-func (s *serv) GetDishesByMenuTypeID(ctx context.Context, menuTypeID string) ([]models.Dish, error) {
-	entities, err := s.repo.GetDishesByMenuTypeID(ctx, menuTypeID)
+func (s *serv) GetDishesByMenuTypeID(ctx context.Context, menuTypeID string, offset, limit int) ([]models.Dish, error) {
+	entities, err := s.repo.GetDishesByMenuTypeID(ctx, menuTypeID, offset, limit)
 	if err != nil {
 		return nil, err
 	}

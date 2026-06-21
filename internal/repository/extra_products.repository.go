@@ -18,23 +18,41 @@ func (r *repo) SaveExtraProduct(ctx context.Context, name, categoryID string, pr
 	return &e, nil
 }
 
-func (r *repo) GetExtraProducts(ctx context.Context, nameQuery string) ([]entity.ExtraProduct, error) {
+func buildExtraProductFrom(nameQuery string) string {
+	base := `FROM extra_products ep JOIN product_categories pc ON pc.id = ep.category_id`
+	if nameQuery == "" {
+		return base
+	}
+	return base + ` WHERE ep.name ILIKE $1`
+}
+
+func (r *repo) CountExtraProducts(ctx context.Context, nameQuery string) (int, error) {
+	var count int
+	if nameQuery == "" {
+		err := r.db.GetContext(ctx, &count, `SELECT COUNT(*) `+buildExtraProductFrom(nameQuery))
+		return count, err
+	}
+	err := r.db.GetContext(ctx, &count, `SELECT COUNT(*) `+buildExtraProductFrom(nameQuery), "%"+nameQuery+"%")
+	return count, err
+}
+
+func (r *repo) GetExtraProducts(ctx context.Context, nameQuery string, offset, limit int) ([]entity.ExtraProduct, error) {
 	var products []entity.ExtraProduct
 	var err error
 
 	if nameQuery == "" {
 		err = r.db.SelectContext(ctx, &products,
-			`SELECT ep.* FROM extra_products ep
-			 JOIN product_categories pc ON pc.id = ep.category_id
-			 ORDER BY pc.name, ep.name`,
+			`SELECT ep.* `+buildExtraProductFrom(nameQuery)+`
+			 ORDER BY pc.name, ep.name
+			 LIMIT $1 OFFSET $2`,
+			limit, offset,
 		)
 	} else {
 		err = r.db.SelectContext(ctx, &products,
-			`SELECT ep.* FROM extra_products ep
-			 JOIN product_categories pc ON pc.id = ep.category_id
-			 WHERE ep.name ILIKE $1
-			 ORDER BY pc.name, ep.name`,
-			"%"+nameQuery+"%",
+			`SELECT ep.* `+buildExtraProductFrom(nameQuery)+`
+			 ORDER BY pc.name, ep.name
+			 LIMIT $2 OFFSET $3`,
+			"%"+nameQuery+"%", limit, offset,
 		)
 	}
 	return products, err

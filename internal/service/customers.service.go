@@ -24,8 +24,12 @@ func (s *serv) CreateCustomer(ctx context.Context, name, customerType string, ph
 	}, nil
 }
 
-func (s *serv) GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]models.Customer, error) {
-	entities, err := s.repo.GetCustomers(ctx, nameQuery, typeFilter)
+func (s *serv) CountCustomers(ctx context.Context, nameQuery, typeFilter string) (int, error) {
+	return s.repo.CountCustomers(ctx, nameQuery, typeFilter)
+}
+
+func (s *serv) GetCustomers(ctx context.Context, nameQuery, typeFilter string, offset, limit int) ([]models.Customer, error) {
+	entities, err := s.repo.GetCustomers(ctx, nameQuery, typeFilter, offset, limit)
 	if err != nil {
 		return nil, err
 	}

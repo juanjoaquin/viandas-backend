@@ -40,6 +40,12 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar productos extra paginados
+GET {{baseUrl}}/extra-products?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
 ### Obtener extra por ID
 GET {{baseUrl}}/extra-products/one?extraProductId={{extraProductId}}
 Authorization: Bearer {{token}}

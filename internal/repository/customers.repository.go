@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 )
@@ -18,29 +20,39 @@ func (r *repo) SaveCustomer(ctx context.Context, name, customerType string, phon
 	return &c, nil
 }
 
-func (r *repo) GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]entity.Customer, error) {
-	var customers []entity.Customer
-	var err error
+func buildCustomerWhere(nameQuery, typeFilter string) (string, []interface{}) {
+	var conditions []string
+	var args []interface{}
 
-	switch {
-	case nameQuery == "" && typeFilter == "":
-		err = r.db.SelectContext(ctx, &customers, `SELECT * FROM customers ORDER BY name`)
-	case nameQuery != "" && typeFilter == "":
-		err = r.db.SelectContext(ctx, &customers,
-			`SELECT * FROM customers WHERE name ILIKE $1 ORDER BY name`,
-			"%"+nameQuery+"%",
-		)
-	case nameQuery == "" && typeFilter != "":
-		err = r.db.SelectContext(ctx, &customers,
-			`SELECT * FROM customers WHERE type = $1 ORDER BY name`,
-			typeFilter,
-		)
-	default:
-		err = r.db.SelectContext(ctx, &customers,
-			`SELECT * FROM customers WHERE name ILIKE $1 AND type = $2 ORDER BY name`,
-			"%"+nameQuery+"%", typeFilter,
-		)
+	if nameQuery != "" {
+		args = append(args, "%"+nameQuery+"%")
+		conditions = append(conditions, fmt.Sprintf("name ILIKE $%d", len(args)))
 	}
+	if typeFilter != "" {
+		args = append(args, typeFilter)
+		conditions = append(conditions, fmt.Sprintf("type = $%d", len(args)))
+	}
+
+	if len(conditions) == 0 {
+		return "", args
+	}
+	return " WHERE " + strings.Join(conditions, " AND "), args
+}
+
+func (r *repo) CountCustomers(ctx context.Context, nameQuery, typeFilter string) (int, error) {
+	where, args := buildCustomerWhere(nameQuery, typeFilter)
+	var count int
+	err := r.db.GetContext(ctx, &count, `SELECT COUNT(*) FROM customers`+where, args...)
+	return count, err
+}
+
+func (r *repo) GetCustomers(ctx context.Context, nameQuery, typeFilter string, offset, limit int) ([]entity.Customer, error) {
+	where, args := buildCustomerWhere(nameQuery, typeFilter)
+	args = append(args, limit, offset)
+	query := fmt.Sprintf(`SELECT * FROM customers%s ORDER BY name LIMIT $%d OFFSET $%d`, where, len(args)-1, len(args))
+
+	var customers []entity.Customer
+	err := r.db.SelectContext(ctx, &customers, query, args...)
 	return customers, err
 }
 

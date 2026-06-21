@@ -73,6 +73,12 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar producciones del día paginadas
+GET {{baseUrl}}/daily-productions?date=2026-06-15&page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
 ### Listar producciones del día — filtrar por estado de entrega
 GET {{baseUrl}}/daily-productions?date=2026-06-15&fulfillment_type=DELIVERY
 Authorization: Bearer {{token}}

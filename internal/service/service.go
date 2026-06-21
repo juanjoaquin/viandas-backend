@@ -21,43 +21,49 @@ type Service interface {
 
 	// Customers
 	CreateCustomer(ctx context.Context, name, customerType string, phone, address *string) (*models.Customer, error)
-	GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]models.Customer, error)
+	CountCustomers(ctx context.Context, nameQuery, typeFilter string) (int, error)
+	GetCustomers(ctx context.Context, nameQuery, typeFilter string, offset, limit int) ([]models.Customer, error)
 	GetCustomerByID(ctx context.Context, id string) (*models.Customer, error)
 	UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error
 	DeleteCustomer(ctx context.Context, id string) error
 
 	// Deliveries
 	CreateDelivery(ctx context.Context, name string, phone *string) (*models.Delivery, error)
-	GetDeliveries(ctx context.Context, nameQuery string) ([]models.Delivery, error)
+	CountDeliveries(ctx context.Context, nameQuery string) (int, error)
+	GetDeliveries(ctx context.Context, nameQuery string, offset, limit int) ([]models.Delivery, error)
 	GetDeliveryByID(ctx context.Context, id string) (*models.Delivery, error)
 	UpdateDelivery(ctx context.Context, id, name string, phone *string, active bool) error
 	DeleteDelivery(ctx context.Context, id string) error
 
 	// MenuTypes
 	CreateMenuType(ctx context.Context, name string, price *float64) (*models.MenuType, error)
-	GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) ([]models.MenuType, error)
+	CountMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) (int, error)
+	GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]models.MenuType, error)
 	GetMenuTypeByID(ctx context.Context, id string) (*models.MenuType, error)
 	UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error
 	DeleteMenuType(ctx context.Context, id string) error
 
 	// ProductCategories
 	CreateProductCategory(ctx context.Context, name string) (*models.ProductCategory, error)
-	GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) ([]models.ProductCategory, error)
+	CountProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) (int, error)
+	GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]models.ProductCategory, error)
 	GetProductCategoryByID(ctx context.Context, id string) (*models.ProductCategory, error)
 	UpdateProductCategory(ctx context.Context, id, name string, active bool) error
 	DeleteProductCategory(ctx context.Context, id string) error
 
 	// Dishes
 	CreateDish(ctx context.Context, name, description, menuTypeID string) (*models.Dish, error)
-	GetDishes(ctx context.Context, nameQuery string) ([]models.Dish, error)
-	GetDishesByMenuTypeID(ctx context.Context, menuTypeID string) ([]models.Dish, error)
+	CountDishes(ctx context.Context, nameQuery, menuTypeID string) (int, error)
+	GetDishes(ctx context.Context, nameQuery, menuTypeID string, offset, limit int) ([]models.Dish, error)
+	GetDishesByMenuTypeID(ctx context.Context, menuTypeID string, offset, limit int) ([]models.Dish, error)
 	GetDishByID(ctx context.Context, id string) (*models.Dish, error)
 	UpdateDish(ctx context.Context, id, name, description, menuTypeID string, active bool) error
 	DeleteDish(ctx context.Context, id string) error
 
 	// ExtraProducts
 	CreateExtraProduct(ctx context.Context, name, categoryID string, price float64) (*models.ExtraProduct, error)
-	GetExtraProducts(ctx context.Context, nameQuery string) ([]models.ExtraProduct, error)
+	CountExtraProducts(ctx context.Context, nameQuery string) (int, error)
+	GetExtraProducts(ctx context.Context, nameQuery string, offset, limit int) ([]models.ExtraProduct, error)
 	GetExtraProductByID(ctx context.Context, id string) (*models.ExtraProduct, error)
 	UpdateExtraProduct(ctx context.Context, id, name, categoryID string, price float64, active bool) error
 	DeleteExtraProduct(ctx context.Context, id string) error
@@ -74,7 +80,8 @@ type Service interface {
 
 	// DailyProductions
 	CreateDailyProduction(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string, lines []entity.ProductionLineInput) (*models.DailyProduction, error)
-	GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]models.DailyProduction, error)
+	CountDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) (int, error)
+	GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string, offset, limit int) ([]models.DailyProduction, error)
 	GetDailyProductionByID(ctx context.Context, id string) (*models.DailyProduction, error)
 	UpdateDailyProduction(ctx context.Context, id string, fulfillmentType, deliveryID, notes *string) error
 	DeleteDailyProduction(ctx context.Context, id string) error
@@ -88,6 +95,7 @@ type Service interface {
 	GetMenuByDate(ctx context.Context, date time.Time) (*models.DayMenu, error)
 	GetKitchenTotals(ctx context.Context, date time.Time) (*models.KitchenTotals, error)
 	GetExtrasTotals(ctx context.Context, date time.Time) (*models.ExtraTotals, error)
+	GetProductionOverview(ctx context.Context, from, to time.Time) (*models.ProductionOverview, error)
 }
 
 type serv struct {

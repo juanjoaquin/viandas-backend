@@ -85,9 +85,14 @@ func (r *repo) SaveDailyProductionWithLines(ctx context.Context, productionDate 
 	return &dp, savedLines, nil
 }
 
-func (r *repo) GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]entity.DailyProduction, error) {
-	var productions []entity.DailyProduction
+type dailyProductionListQuery struct {
+	joins   string
+	where   string
+	orderBy string
+	args    []interface{}
+}
 
+func buildDailyProductionListQuery(date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) dailyProductionListQuery {
 	args := []interface{}{date}
 	joins := []string{}
 	where := []string{"dp.production_date = $1"}
@@ -131,17 +136,48 @@ func (r *repo) GetDailyProductions(ctx context.Context, date time.Time, nameQuer
 		) %s, dp.created_at`, direction)
 	}
 
+	return dailyProductionListQuery{
+		joins:   strings.Join(joins, " "),
+		where:   strings.Join(where, " AND "),
+		orderBy: orderBy,
+		args:    args,
+	}
+}
+
+func (r *repo) CountDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) (int, error) {
+	q := buildDailyProductionListQuery(date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
+	query := fmt.Sprintf(
+		`SELECT COUNT(*)
+		 FROM daily_productions dp
+		 %s
+		 WHERE %s`,
+		q.joins,
+		q.where,
+	)
+
+	var count int
+	err := r.db.GetContext(ctx, &count, query, q.args...)
+	return count, err
+}
+
+func (r *repo) GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string, offset, limit int) ([]entity.DailyProduction, error) {
+	q := buildDailyProductionListQuery(date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
+	args := append(q.args, limit, offset)
 	query := fmt.Sprintf(
 		`SELECT dp.*
 		 FROM daily_productions dp
 		 %s
 		 WHERE %s
-		 ORDER BY %s`,
-		strings.Join(joins, " "),
-		strings.Join(where, " AND "),
-		orderBy,
+		 ORDER BY %s
+		 LIMIT $%d OFFSET $%d`,
+		q.joins,
+		q.where,
+		q.orderBy,
+		len(q.args)+1,
+		len(q.args)+2,
 	)
 
+	var productions []entity.DailyProduction
 	err := r.db.SelectContext(ctx, &productions, query, args...)
 	return productions, err
 }

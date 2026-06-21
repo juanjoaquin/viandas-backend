@@ -23,8 +23,12 @@ func (s *serv) CreateMenuType(ctx context.Context, name string, price *float64) 
 	}, nil
 }
 
-func (s *serv) GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) ([]models.MenuType, error) {
-	entities, err := s.repo.GetMenuTypes(ctx, nameQuery, activeFilter)
+func (s *serv) CountMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) (int, error) {
+	return s.repo.CountMenuTypes(ctx, nameQuery, activeFilter)
+}
+
+func (s *serv) GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]models.MenuType, error) {
+	entities, err := s.repo.GetMenuTypes(ctx, nameQuery, activeFilter, offset, limit)
 	if err != nil {
 		return nil, err
 	}

@@ -10,11 +10,12 @@ import (
 )
 
 type ProductCategoryHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewProductCategoryHandler(serv service.Service) *ProductCategoryHandler {
-	return &ProductCategoryHandler{serv: serv}
+func NewProductCategoryHandler(serv service.Service, paginatorLimitDefault string) *ProductCategoryHandler {
+	return &ProductCategoryHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func (h *ProductCategoryHandler) Create(c *echo.Context) error {
@@ -54,13 +55,16 @@ func (h *ProductCategoryHandler) GetAll(c *echo.Context) error {
 		activeFilter = &active
 	}
 
-	categories, err := h.serv.GetProductCategories(ctx, c.QueryParam("q"), activeFilter)
-	if err != nil {
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
-	}
+	nameQuery := c.QueryParam("q")
 
-	return respond(c, http.StatusOK, "ok", categories)
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountProductCategories(ctx, nameQuery, activeFilter)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetProductCategories(ctx, nameQuery, activeFilter, offset, limit)
+		},
+	)
 }
 
 func (h *ProductCategoryHandler) GetByID(c *echo.Context) error {

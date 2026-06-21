@@ -24,6 +24,12 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar categorías paginadas
+GET {{baseUrl}}/product-categories?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
 ### Listar categorías activas
 GET {{baseUrl}}/product-categories?active=true
 Authorization: Bearer {{token}}

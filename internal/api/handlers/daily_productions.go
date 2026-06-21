@@ -13,11 +13,12 @@ import (
 )
 
 type DailyProductionHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewDailyProductionHandler(serv service.Service) *DailyProductionHandler {
-	return &DailyProductionHandler{serv: serv}
+func NewDailyProductionHandler(serv service.Service, paginatorLimitDefault string) *DailyProductionHandler {
+	return &DailyProductionHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func (h *DailyProductionHandler) Create(c *echo.Context) error {
@@ -90,13 +91,14 @@ func (h *DailyProductionHandler) GetByDate(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "invalid order", nil)
 	}
 
-	productions, err := h.serv.GetDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
-	if err != nil {
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
-	}
-
-	return respond(c, http.StatusOK, "ok", productions)
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetDailyProductions(ctx, date, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder, offset, limit)
+		},
+	)
 }
 
 func (h *DailyProductionHandler) GetByID(c *echo.Context) error {

@@ -10,11 +10,12 @@ import (
 )
 
 type DeliveryHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewDeliveryHandler(serv service.Service) *DeliveryHandler {
-	return &DeliveryHandler{serv: serv}
+func NewDeliveryHandler(serv service.Service, paginatorLimitDefault string) *DeliveryHandler {
+	return &DeliveryHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func (h *DeliveryHandler) Create(c *echo.Context) error {
@@ -43,13 +44,16 @@ func (h *DeliveryHandler) GetAll(c *echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	deliveries, err := h.serv.GetDeliveries(ctx, c.QueryParam("q"))
-	if err != nil {
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
-	}
+	nameQuery := c.QueryParam("q")
 
-	return respond(c, http.StatusOK, "ok", deliveries)
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountDeliveries(ctx, nameQuery)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetDeliveries(ctx, nameQuery, offset, limit)
+		},
+	)
 }
 
 func (h *DeliveryHandler) GetByID(c *echo.Context) error {

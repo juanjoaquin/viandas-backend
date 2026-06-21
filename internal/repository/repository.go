@@ -22,43 +22,49 @@ type Repository interface {
 
 	// Customers
 	SaveCustomer(ctx context.Context, name, customerType string, phone, address *string) (*entity.Customer, error)
-	GetCustomers(ctx context.Context, nameQuery, typeFilter string) ([]entity.Customer, error)
+	CountCustomers(ctx context.Context, nameQuery, typeFilter string) (int, error)
+	GetCustomers(ctx context.Context, nameQuery, typeFilter string, offset, limit int) ([]entity.Customer, error)
 	GetCustomerByID(ctx context.Context, id string) (*entity.Customer, error)
 	UpdateCustomer(ctx context.Context, id, name, customerType string, phone, address *string) error
 	DeleteCustomer(ctx context.Context, id string) error
 
 	// Deliveries
 	SaveDelivery(ctx context.Context, name string, phone *string) (*entity.Delivery, error)
-	GetDeliveries(ctx context.Context, nameQuery string) ([]entity.Delivery, error)
+	CountDeliveries(ctx context.Context, nameQuery string) (int, error)
+	GetDeliveries(ctx context.Context, nameQuery string, offset, limit int) ([]entity.Delivery, error)
 	GetDeliveryByID(ctx context.Context, id string) (*entity.Delivery, error)
 	UpdateDelivery(ctx context.Context, id, name string, phone *string, active bool) error
 	DeleteDelivery(ctx context.Context, id string) error
 
 	// MenuTypes
 	SaveMenuType(ctx context.Context, name string, price *float64) (*entity.MenuType, error)
-	GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) ([]entity.MenuType, error)
+	CountMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool) (int, error)
+	GetMenuTypes(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]entity.MenuType, error)
 	GetMenuTypeByID(ctx context.Context, id string) (*entity.MenuType, error)
 	UpdateMenuType(ctx context.Context, id, name string, price *float64, active bool) error
 	DeleteMenuType(ctx context.Context, id string) error
 
 	// ProductCategories
 	SaveProductCategory(ctx context.Context, name string) (*entity.ProductCategory, error)
-	GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) ([]entity.ProductCategory, error)
+	CountProductCategories(ctx context.Context, nameQuery string, activeFilter *bool) (int, error)
+	GetProductCategories(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]entity.ProductCategory, error)
 	GetProductCategoryByID(ctx context.Context, id string) (*entity.ProductCategory, error)
 	UpdateProductCategory(ctx context.Context, id, name string, active bool) error
 	DeleteProductCategory(ctx context.Context, id string) error
 
 	// Dishes
 	SaveDish(ctx context.Context, name, description, menuTypeID string) (*entity.Dish, error)
-	GetDishes(ctx context.Context, nameQuery string) ([]entity.Dish, error)
-	GetDishesByMenuTypeID(ctx context.Context, menuTypeID string) ([]entity.Dish, error)
+	CountDishes(ctx context.Context, nameQuery, menuTypeID string) (int, error)
+	GetDishes(ctx context.Context, nameQuery, menuTypeID string, offset, limit int) ([]entity.Dish, error)
+	GetDishesByMenuTypeID(ctx context.Context, menuTypeID string, offset, limit int) ([]entity.Dish, error)
 	GetDishByID(ctx context.Context, id string) (*entity.Dish, error)
 	UpdateDish(ctx context.Context, id, name, description, menuTypeID string, active bool) error
 	DeleteDish(ctx context.Context, id string) error
 
 	// ExtraProducts
 	SaveExtraProduct(ctx context.Context, name, categoryID string, price float64) (*entity.ExtraProduct, error)
-	GetExtraProducts(ctx context.Context, nameQuery string) ([]entity.ExtraProduct, error)
+	CountExtraProducts(ctx context.Context, nameQuery string) (int, error)
+	GetExtraProducts(ctx context.Context, nameQuery string, offset, limit int) ([]entity.ExtraProduct, error)
 	GetExtraProductByID(ctx context.Context, id string) (*entity.ExtraProduct, error)
 	UpdateExtraProduct(ctx context.Context, id, name, categoryID string, price float64, active bool) error
 	DeleteExtraProduct(ctx context.Context, id string) error
@@ -80,7 +86,8 @@ type Repository interface {
 	// DailyProductions
 	SaveDailyProduction(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string) (*entity.DailyProduction, error)
 	SaveDailyProductionWithLines(ctx context.Context, productionDate time.Time, customerID, fulfillmentType, deliveryID, notes, createdBy string, lines []entity.ProductionLineInput) (*entity.DailyProduction, []entity.DailyProductionLine, error)
-	GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) ([]entity.DailyProduction, error)
+	GetDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string, offset, limit int) ([]entity.DailyProduction, error)
+	CountDailyProductions(ctx context.Context, date time.Time, nameQuery, fulfillmentType, deliveryID, menuTypeID, sortBy, sortOrder string) (int, error)
 	GetDailyProductionByID(ctx context.Context, id string) (*entity.DailyProduction, error)
 	GetDailyProductionByDateAndCustomer(ctx context.Context, productionDate time.Time, customerID string) (*entity.DailyProduction, error)
 	UpdateDailyProduction(ctx context.Context, id, fulfillmentType, deliveryID, notes string) error
@@ -97,6 +104,10 @@ type Repository interface {
 	GetDailyProductionExtras(ctx context.Context, dailyProductionID string) ([]entity.DailyProductionExtra, error)
 	UpdateDailyProductionExtra(ctx context.Context, dailyProductionID, id, extraProductID string, quantity int) (*entity.DailyProductionExtra, error)
 	DeleteDailyProductionExtra(ctx context.Context, id string) error
+
+	// Overview
+	GetOverviewMenuTotals(ctx context.Context, from, to time.Time) ([]entity.OverviewMenuTotal, error)
+	GetOverviewProductTotals(ctx context.Context, from, to time.Time) ([]entity.OverviewProductTotal, error)
 }
 
 type repo struct {

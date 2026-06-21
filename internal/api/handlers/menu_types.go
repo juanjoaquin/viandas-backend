@@ -10,11 +10,12 @@ import (
 )
 
 type MenuTypeHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewMenuTypeHandler(serv service.Service) *MenuTypeHandler {
-	return &MenuTypeHandler{serv: serv}
+func NewMenuTypeHandler(serv service.Service, paginatorLimitDefault string) *MenuTypeHandler {
+	return &MenuTypeHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func (h *MenuTypeHandler) Create(c *echo.Context) error {
@@ -54,13 +55,16 @@ func (h *MenuTypeHandler) GetAll(c *echo.Context) error {
 		activeFilter = &active
 	}
 
-	types, err := h.serv.GetMenuTypes(ctx, c.QueryParam("q"), activeFilter)
-	if err != nil {
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
-	}
+	nameQuery := c.QueryParam("q")
 
-	return respond(c, http.StatusOK, "ok", types)
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountMenuTypes(ctx, nameQuery, activeFilter)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetMenuTypes(ctx, nameQuery, activeFilter, offset, limit)
+		},
+	)
 }
 
 func (h *MenuTypeHandler) GetByID(c *echo.Context) error {

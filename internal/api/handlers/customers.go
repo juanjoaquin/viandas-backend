@@ -10,11 +10,12 @@ import (
 )
 
 type CustomerHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewCustomerHandler(serv service.Service) *CustomerHandler {
-	return &CustomerHandler{serv: serv}
+func NewCustomerHandler(serv service.Service, paginatorLimitDefault string) *CustomerHandler {
+	return &CustomerHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func (h *CustomerHandler) Create(c *echo.Context) error {
@@ -49,13 +50,16 @@ func (h *CustomerHandler) GetAll(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, "type must be COMPANY or PERSON", nil)
 	}
 
-	customers, err := h.serv.GetCustomers(ctx, c.QueryParam("q"), typeFilter)
-	if err != nil {
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
-	}
+	nameQuery := c.QueryParam("q")
 
-	return respond(c, http.StatusOK, "ok", customers)
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountCustomers(ctx, nameQuery, typeFilter)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetCustomers(ctx, nameQuery, typeFilter, offset, limit)
+		},
+	)
 }
 
 func (h *CustomerHandler) GetByID(c *echo.Context) error {

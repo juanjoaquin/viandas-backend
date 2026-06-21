@@ -13,6 +13,12 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar tipos de menú paginados
+GET {{baseUrl}}/menu-types?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
 ### Buscar tipos de menú por nombre
 GET {{baseUrl}}/menu-types?q=veget
 Authorization: Bearer {{token}}

@@ -44,8 +44,12 @@ func (s *serv) CreateExtraProduct(ctx context.Context, name, categoryID string, 
 	return s.mapExtraProduct(ctx, e), nil
 }
 
-func (s *serv) GetExtraProducts(ctx context.Context, nameQuery string) ([]models.ExtraProduct, error) {
-	entities, err := s.repo.GetExtraProducts(ctx, nameQuery)
+func (s *serv) CountExtraProducts(ctx context.Context, nameQuery string) (int, error) {
+	return s.repo.CountExtraProducts(ctx, nameQuery)
+}
+
+func (s *serv) GetExtraProducts(ctx context.Context, nameQuery string, offset, limit int) ([]models.ExtraProduct, error) {
+	entities, err := s.repo.GetExtraProducts(ctx, nameQuery, offset, limit)
 	if err != nil {
 		return nil, err
 	}

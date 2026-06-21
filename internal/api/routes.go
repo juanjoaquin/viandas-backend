@@ -6,16 +6,17 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
+func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service, paginatorLimitDefault string) {
 	userH := handlers.NewUserHandler(serv)
-	customerH := handlers.NewCustomerHandler(serv)
-	deliveryH := handlers.NewDeliveryHandler(serv)
-	menuTypeH := handlers.NewMenuTypeHandler(serv)
-	dishH := handlers.NewDishHandler(serv)
-	productCategoryH := handlers.NewProductCategoryHandler(serv)
-	extraH := handlers.NewExtraProductHandler(serv)
+	customerH := handlers.NewCustomerHandler(serv, paginatorLimitDefault)
+	deliveryH := handlers.NewDeliveryHandler(serv, paginatorLimitDefault)
+	menuTypeH := handlers.NewMenuTypeHandler(serv, paginatorLimitDefault)
+	dishH := handlers.NewDishHandler(serv, paginatorLimitDefault)
+	productCategoryH := handlers.NewProductCategoryHandler(serv, paginatorLimitDefault)
+	extraH := handlers.NewExtraProductHandler(serv, paginatorLimitDefault)
 	weekMenuH := handlers.NewWeekMenuHandler(serv)
-	dailyH := handlers.NewDailyProductionHandler(serv)
+	dailyH := handlers.NewDailyProductionHandler(serv, paginatorLimitDefault)
+	overviewH := handlers.NewOverviewHandler(serv)
 
 	// Auth
 	auth := e.Group("/auth")
@@ -99,4 +100,8 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service) {
 	daily.POST("/:id/extras", dailyH.AddExtra)
 	daily.PUT("/:id/extras/:extraId", dailyH.UpdateExtra)
 	daily.DELETE("/:id/extras/:extraId", dailyH.DeleteExtra)
+
+	// Overview
+	overview := e.Group("/overview")
+	overview.GET("/production", overviewH.GetProductionOverview) // ?from=2026-06-01&to=2026-06-30
 }

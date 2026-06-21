@@ -10,11 +10,12 @@ import (
 )
 
 type DishHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewDishHandler(serv service.Service) *DishHandler {
-	return &DishHandler{serv: serv}
+func NewDishHandler(serv service.Service, paginatorLimitDefault string) *DishHandler {
+	return &DishHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func (h *DishHandler) Create(c *echo.Context) error {
@@ -45,22 +46,16 @@ func (h *DishHandler) GetAll(c *echo.Context) error {
 	ctx := c.Request().Context()
 
 	menuTypeID := c.QueryParam("menu_type_id")
-	if menuTypeID != "" {
-		dishes, err := h.serv.GetDishesByMenuTypeID(ctx, menuTypeID)
-		if err != nil {
-			log.Println(err)
-			return respond(c, http.StatusInternalServerError, err.Error(), nil)
-		}
-		return respond(c, http.StatusOK, "ok", dishes)
-	}
+	nameQuery := c.QueryParam("q")
 
-	dishes, err := h.serv.GetDishes(ctx, c.QueryParam("q"))
-	if err != nil {
-		log.Println(err)
-		return respond(c, http.StatusInternalServerError, err.Error(), nil)
-	}
-
-	return respond(c, http.StatusOK, "ok", dishes)
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountDishes(ctx, nameQuery, menuTypeID)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetDishes(ctx, nameQuery, menuTypeID, offset, limit)
+		},
+	)
 }
 
 func (h *DishHandler) GetByID(c *echo.Context) error {

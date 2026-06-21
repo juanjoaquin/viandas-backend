@@ -55,6 +55,18 @@ Authorization: Bearer {{token}}
 
 ###
 
+### Listar clientes paginados
+GET {{baseUrl}}/customers?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
+### Listar clientes paginados (página 2)
+GET {{baseUrl}}/customers?page=2&limit=10
+Authorization: Bearer {{token}}
+
+###
+
 ### Buscar clientes por nombre
 GET {{baseUrl}}/customers?q=aluar
 Authorization: Bearer {{token}}
