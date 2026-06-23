@@ -21,10 +21,15 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service, paginatorLimitD
 	// Auth
 	auth := e.Group("/auth")
 	auth.POST("/register", userH.Register)
+	auth.POST("/register-with-invite", userH.RegisterWithInvite)
 	auth.POST("/login", userH.Login)
 	auth.GET("/me", userH.Me)
 	auth.POST("/refresh", userH.Refresh)
 	auth.POST("/logout", userH.Logout)
+
+	// Users
+	users := e.Group("/users")
+	users.POST("/invites", userH.Invite)
 
 	// Customers
 	customers := e.Group("/customers")

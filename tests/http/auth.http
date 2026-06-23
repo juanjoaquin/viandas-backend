@@ -2,6 +2,7 @@
 @baseUrl = http://localhost:8080
 @token = <pega_tu_access_token_aqui>
 @refreshToken = <pega_tu_refresh_token_aqui>
+@inviteToken = <pega_el_token_de_la_invite_url_aqui>
 
 ### ─────────────────────────────
 ### AUTH
@@ -29,6 +30,30 @@ Content-Type: application/json
   "email": "empleado@viandas.com",
   "password": "123456",
   "role": "EMPLOYEE"
+}
+
+###
+
+### Invite — crear invitación de empleado (ADMIN)
+POST {{baseUrl}}/users/invites
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "nuevo-empleado@viandas.com",
+  "role": "EMPLOYEE"
+}
+
+###
+
+### Register with invite — empleado acepta invitación
+POST {{baseUrl}}/auth/register-with-invite
+Content-Type: application/json
+
+{
+  "token": "{{inviteToken}}",
+  "name": "Nuevo Empleado",
+  "password": "123456"
 }
 
 ###

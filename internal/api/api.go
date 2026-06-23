@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/juanjoaquin/viandas-backend/internal/pkg/logger"
 	"github.com/juanjoaquin/viandas-backend/internal/service"
 	"github.com/juanjoaquin/viandas-backend/settings"
 	"github.com/labstack/echo/v5"
@@ -32,7 +33,8 @@ func New(serv service.Service, settings *settings.Settings) *API {
 }
 
 func (a *API) Start(e *echo.Echo, address string) error {
-	e.Use(middleware.RequestLogger())
+	e.Use(middleware.RequestID())
+	e.Use(logger.RequestLogger(a.settings.LogFormat))
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"*"},

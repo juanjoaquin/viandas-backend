@@ -7,6 +7,7 @@ import (
 	"github.com/juanjoaquin/viandas-backend/encryption"
 	"github.com/juanjoaquin/viandas-backend/internal/api/dtos"
 	authmw "github.com/juanjoaquin/viandas-backend/internal/api/middleware"
+	"github.com/juanjoaquin/viandas-backend/internal/roles"
 	"github.com/juanjoaquin/viandas-backend/internal/service"
 	"github.com/labstack/echo/v5"
 )
@@ -34,12 +35,73 @@ func (h *UserHandler) Register(c *echo.Context) error {
 		return respond(c, http.StatusBadRequest, err.Error(), nil)
 	}
 
-	if err := h.serv.RegisterUser(ctx, params.Name, params.Email, params.Password, params.Role); err != nil {
+	role := params.Role
+	if role == "" {
+		role = roles.Employee
+	}
+	if role != roles.Admin && role != roles.Employee {
+		return respond(c, http.StatusBadRequest, "role must be ADMIN or EMPLOYEE", nil)
+	}
+
+	if err := h.serv.RegisterUser(ctx, params.Name, params.Email, params.Password, role); err != nil {
 		if err == service.ErrUserAlreadyExists {
 			return respond(c, http.StatusConflict, err.Error(), nil)
 		}
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusCreated, "user created successfully", nil)
+}
+
+func (h *UserHandler) Invite(c *echo.Context) error {
+	claims, err := requireAdmin(c)
+	if err != nil {
+		return respond(c, http.StatusForbidden, "forbidden", nil)
+	}
+
+	ctx := c.Request().Context()
+	var params dtos.InviteUser
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if params.Role == "" {
+		params.Role = roles.Employee
+	}
+
+	invite, err := h.serv.InviteUser(ctx, params.Email, params.Role, claims.UserID)
+	if err != nil {
+		switch err {
+		case service.ErrUserAlreadyExists:
+			return respond(c, http.StatusConflict, err.Error(), nil)
+		case service.ErrInviteRoleNotSupported:
+			return respond(c, http.StatusBadRequest, err.Error(), nil)
+		default:
+			log.Println(err)
+			return respond(c, http.StatusInternalServerError, err.Error(), nil)
+		}
+	}
+
+	return respond(c, http.StatusCreated, "invite created successfully", invite)
+}
+
+func (h *UserHandler) RegisterWithInvite(c *echo.Context) error {
+	ctx := c.Request().Context()
+	var params dtos.RegisterWithInvite
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	if err := h.serv.RegisterWithInvite(ctx, params.Token, params.Name, params.Password); err != nil {
+		switch err {
+		case service.ErrInvalidInvite, service.ErrInviteExpired, service.ErrInviteAlreadyAccepted:
+			return respond(c, http.StatusBadRequest, err.Error(), nil)
+		case service.ErrUserAlreadyExists:
+			return respond(c, http.StatusConflict, err.Error(), nil)
+		default:
+			log.Println(err)
+			return respond(c, http.StatusInternalServerError, err.Error(), nil)
+		}
 	}
 
 	return respond(c, http.StatusCreated, "user created successfully", nil)

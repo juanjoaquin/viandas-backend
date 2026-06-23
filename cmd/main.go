@@ -6,6 +6,8 @@ import (
 
 	"github.com/juanjoaquin/viandas-backend/database"
 	"github.com/juanjoaquin/viandas-backend/internal/api"
+	"github.com/juanjoaquin/viandas-backend/internal/mailer"
+	"github.com/juanjoaquin/viandas-backend/internal/pkg/logger"
 	"github.com/juanjoaquin/viandas-backend/internal/repository"
 	"github.com/juanjoaquin/viandas-backend/internal/service"
 	"github.com/juanjoaquin/viandas-backend/settings"
@@ -19,15 +21,24 @@ func main() {
 			context.Background,
 			settings.New,
 			database.New,
+			mailer.New,
 			repository.New,
 			service.New,
 			api.New,
-			echo.New,
+			newEcho,
 		),
 		fx.Invoke(setLifeCycle),
 	)
 
 	app.Run()
+}
+
+func newEcho(s *settings.Settings) *echo.Echo {
+	e := echo.New()
+	l := logger.New(s.LogFormat)
+	e.Logger = l
+	logger.SetDefault(l)
+	return e
 }
 
 func setLifeCycle(lc fx.Lifecycle, a *api.API, s *settings.Settings, e *echo.Echo) {

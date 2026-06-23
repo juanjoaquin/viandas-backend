@@ -11,6 +11,17 @@ CREATE TABLE users (
     updated_at    TIMESTAMP     NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE user_invites (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email       VARCHAR(255) NOT NULL,
+    role        VARCHAR(20)  NOT NULL CHECK (role IN ('ADMIN', 'EMPLOYEE')),
+    token       TEXT         NOT NULL UNIQUE,
+    invited_by  UUID         REFERENCES users(id) ON DELETE SET NULL,
+    expires_at  TIMESTAMP    NOT NULL,
+    accepted_at TIMESTAMP,
+    created_at  TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE customers (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name       VARCHAR(255) NOT NULL,

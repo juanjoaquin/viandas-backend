@@ -14,6 +14,9 @@ type Repository interface {
 	SaveUser(ctx context.Context, name, email, passwordHash, role string) error
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	GetUserByID(ctx context.Context, id string) (*entity.User, error)
+	SaveUserInvite(ctx context.Context, email, role, token, invitedBy string, expiresAt time.Time) (*entity.UserInvite, error)
+	GetUserInviteByToken(ctx context.Context, token string) (*entity.UserInvite, error)
+	AcceptUserInvite(ctx context.Context, id string) error
 
 	// RefreshTokens
 	SaveRefreshToken(ctx context.Context, userID, token string, expiresAt time.Time) error

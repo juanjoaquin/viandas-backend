@@ -1,4 +1,5 @@
 port: "8080"
+frontend_url: "http://localhost:3000"
 
 database:
   host: "localhost"
@@ -7,3 +8,7 @@ database:
   password: "postgres"
   name: "viandas_db"
   sslmode: "disable"
+
+resend:
+  api_key: ""
+  from_email: "onboarding@resend.dev"

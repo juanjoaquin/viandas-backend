@@ -20,10 +20,18 @@ type DatabaseConfig struct {
 	SSLMode  string `yaml:"sslmode"`
 }
 
+type ResendConfig struct {
+	APIKey    string `yaml:"api_key"`
+	FromEmail string `yaml:"from_email"`
+}
+
 type Settings struct {
-	Port                    string         `yaml:"port"`
-	PaginatorLimitDefault   string         `yaml:"paginator_limit_default"`
-	DB                      DatabaseConfig `yaml:"database"`
+	Port                  string         `yaml:"port"`
+	PaginatorLimitDefault string         `yaml:"paginator_limit_default"`
+	LogFormat             string         `yaml:"log_format"`
+	FrontendURL           string         `yaml:"frontend_url"`
+	DB                    DatabaseConfig `yaml:"database"`
+	Resend                ResendConfig   `yaml:"resend"`
 }
 
 func New() (*Settings, error) {
@@ -69,5 +77,29 @@ func applyEnvOverrides(s *Settings) {
 	}
 	if s.PaginatorLimitDefault == "" {
 		s.PaginatorLimitDefault = "10"
+	}
+
+	if v := os.Getenv("LOG_FORMAT"); v != "" {
+		s.LogFormat = v
+	}
+	if s.LogFormat == "" {
+		s.LogFormat = "text"
+	}
+
+	if v := os.Getenv("FRONTEND_URL"); v != "" {
+		s.FrontendURL = v
+	}
+	if s.FrontendURL == "" {
+		s.FrontendURL = "http://localhost:3000"
+	}
+
+	if v := os.Getenv("RESEND_API_KEY"); v != "" {
+		s.Resend.APIKey = v
+	}
+	if v := os.Getenv("RESEND_FROM_EMAIL"); v != "" {
+		s.Resend.FromEmail = v
+	}
+	if s.Resend.FromEmail == "" {
+		s.Resend.FromEmail = "onboarding@resend.dev"
 	}
 }

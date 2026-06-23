@@ -7,6 +7,17 @@ type RegisterUser struct {
 	Role     string `json:"role"     validate:"required,oneof=ADMIN EMPLOYEE"`
 }
 
+type InviteUser struct {
+	Email string `json:"email" validate:"required,email"`
+	Role  string `json:"role"  validate:"required,oneof=EMPLOYEE"`
+}
+
+type RegisterWithInvite struct {
+	Token    string `json:"token"    validate:"required"`
+	Name     string `json:"name"     validate:"required,min=2"`
+	Password string `json:"password" validate:"required,min=6"`
+}
+
 type LoginUser struct {
 	Email    string `json:"email"    validate:"required,email"`
 	Password string `json:"password" validate:"required"`

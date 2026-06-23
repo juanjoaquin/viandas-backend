@@ -7,12 +7,19 @@ import (
 	"github.com/juanjoaquin/viandas-backend/internal/entity"
 	"github.com/juanjoaquin/viandas-backend/internal/models"
 	"github.com/juanjoaquin/viandas-backend/internal/repository"
+	"github.com/juanjoaquin/viandas-backend/settings"
 )
+
+type InviteMailer interface {
+	SendInvite(ctx context.Context, toEmail, inviteURL string) error
+}
 
 //go:generate mockery --name=Service --output=service --inpackage=true
 type Service interface {
 	// Auth
 	RegisterUser(ctx context.Context, name, email, password, role string) error
+	InviteUser(ctx context.Context, email, role, invitedBy string) (*models.UserInvite, error)
+	RegisterWithInvite(ctx context.Context, token, name, password string) error
 	LoginUser(ctx context.Context, email, password string) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 	CreateRefreshToken(ctx context.Context, userID string) (string, error)
@@ -99,9 +106,15 @@ type Service interface {
 }
 
 type serv struct {
-	repo repository.Repository
+	repo         repository.Repository
+	inviteMailer InviteMailer
+	settings     *settings.Settings
 }
 
-func New(repo repository.Repository) Service {
-	return &serv{repo: repo}
+func New(repo repository.Repository, inviteMailer InviteMailer, settings *settings.Settings) Service {
+	return &serv{
+		repo:         repo,
+		inviteMailer: inviteMailer,
+		settings:     settings,
+	}
 }
