@@ -10,8 +10,9 @@ import (
 	"github.com/juanjoaquin/viandas-backend/settings"
 )
 
-type InviteMailer interface {
+type Mailer interface {
 	SendInvite(ctx context.Context, toEmail, inviteURL string) error
+	SendPasswordReset(ctx context.Context, toEmail, resetURL string) error
 }
 
 //go:generate mockery --name=Service --output=service --inpackage=true
@@ -22,9 +23,15 @@ type Service interface {
 	RegisterWithInvite(ctx context.Context, token, name, password string) error
 	LoginUser(ctx context.Context, email, password string) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	GetUserByID(ctx context.Context, id string) (*models.User, error)
+	CountUsers(ctx context.Context, nameQuery string, activeFilter *bool) (int, error)
+	GetUsers(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]models.User, error)
+	UpdateUserActive(ctx context.Context, id string, active bool, requestingUserID string) error
 	CreateRefreshToken(ctx context.Context, userID string) (string, error)
 	RefreshAccessToken(ctx context.Context, refreshToken string) (accessToken string, newRefreshToken string, err error)
 	RevokeRefreshToken(ctx context.Context, refreshToken string) error
+	RequestPasswordReset(ctx context.Context, email string) error
+	ResetPassword(ctx context.Context, token, newPassword string) error
 
 	// Customers
 	CreateCustomer(ctx context.Context, name, customerType string, phone, address *string) (*models.Customer, error)
@@ -106,15 +113,15 @@ type Service interface {
 }
 
 type serv struct {
-	repo         repository.Repository
-	inviteMailer InviteMailer
-	settings     *settings.Settings
+	repo     repository.Repository
+	mailer   Mailer
+	settings *settings.Settings
 }
 
-func New(repo repository.Repository, inviteMailer InviteMailer, settings *settings.Settings) Service {
+func New(repo repository.Repository, mailer Mailer, settings *settings.Settings) Service {
 	return &serv{
-		repo:         repo,
-		inviteMailer: inviteMailer,
-		settings:     settings,
+		repo:     repo,
+		mailer:   mailer,
+		settings: settings,
 	}
 }

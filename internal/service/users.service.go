@@ -17,9 +17,11 @@ import (
 )
 
 var (
-	ErrUserAlreadyExists      = errors.New("user already exists")
-	ErrUserNotFound           = errors.New("user not found")
-	ErrInvalidPassword        = errors.New("invalid password")
+	ErrUserAlreadyExists        = errors.New("user already exists")
+	ErrUserNotFound             = errors.New("user not found")
+	ErrUserInactive             = errors.New("account disabled")
+	ErrUserCannotDeactivateSelf = errors.New("cannot deactivate your own account")
+	ErrInvalidPassword          = errors.New("invalid password")
 	ErrInvalidInvite          = errors.New("invalid invite")
 	ErrInviteExpired          = errors.New("invite expired")
 	ErrInviteAlreadyAccepted  = errors.New("invite already accepted")
@@ -64,7 +66,7 @@ func (s *serv) InviteUser(ctx context.Context, email, role, invitedBy string) (*
 	}
 
 	inviteURL := s.inviteURL(token)
-	if err := s.inviteMailer.SendInvite(ctx, email, inviteURL); err != nil {
+	if err := s.mailer.SendInvite(ctx, email, inviteURL); err != nil {
 		return nil, err
 	}
 
@@ -110,6 +112,14 @@ func (s *serv) LoginUser(ctx context.Context, email, password string) (*models.U
 		return nil, ErrInvalidPassword
 	}
 
+	if !u.Active {
+		return nil, ErrUserInactive
+	}
+
+	return userEntityToModel(u), nil
+}
+
+func userEntityToModel(u *entity.User) *models.User {
 	return &models.User{
 		ID:        u.ID,
 		Name:      u.Name,
@@ -117,7 +127,54 @@ func (s *serv) LoginUser(ctx context.Context, email, password string) (*models.U
 		Role:      u.Role,
 		Active:    u.Active,
 		CreatedAt: u.CreatedAt.Format("2006-01-02T15:04:05Z"),
-	}, nil
+	}
+}
+
+func (s *serv) GetUserByID(ctx context.Context, id string) (*models.User, error) {
+	u, err := s.repo.GetUserByID(ctx, id)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+
+	return userEntityToModel(u), nil
+}
+
+func (s *serv) CountUsers(ctx context.Context, nameQuery string, activeFilter *bool) (int, error) {
+	return s.repo.CountUsers(ctx, nameQuery, activeFilter)
+}
+
+func (s *serv) GetUsers(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]models.User, error) {
+	entities, err := s.repo.GetUsers(ctx, nameQuery, activeFilter, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]models.User, len(entities))
+	for i, u := range entities {
+		users[i] = *userEntityToModel(&u)
+	}
+	return users, nil
+}
+
+func (s *serv) UpdateUserActive(ctx context.Context, id string, active bool, requestingUserID string) error {
+	if !active && id == requestingUserID {
+		return ErrUserCannotDeactivateSelf
+	}
+
+	_, err := s.repo.GetUserByID(ctx, id)
+	if err != nil {
+		return ErrUserNotFound
+	}
+
+	if err := s.repo.UpdateUserActive(ctx, id, active); err != nil {
+		return err
+	}
+
+	if !active {
+		_ = s.repo.DeleteRefreshTokensByUserID(ctx, id)
+	}
+
+	return nil
 }
 
 func (s *serv) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
@@ -126,14 +183,7 @@ func (s *serv) GetUserByEmail(ctx context.Context, email string) (*models.User, 
 		return nil, ErrUserNotFound
 	}
 
-	return &models.User{
-		ID:        u.ID,
-		Name:      u.Name,
-		Email:     u.Email,
-		Role:      u.Role,
-		Active:    u.Active,
-		CreatedAt: u.CreatedAt.Format("2006-01-02T15:04:05Z"),
-	}, nil
+	return userEntityToModel(u), nil
 }
 
 func normalizeEmail(email string) string {

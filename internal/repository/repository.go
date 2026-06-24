@@ -14,14 +14,24 @@ type Repository interface {
 	SaveUser(ctx context.Context, name, email, passwordHash, role string) error
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	GetUserByID(ctx context.Context, id string) (*entity.User, error)
+	CountUsers(ctx context.Context, nameQuery string, activeFilter *bool) (int, error)
+	GetUsers(ctx context.Context, nameQuery string, activeFilter *bool, offset, limit int) ([]entity.User, error)
+	UpdateUserActive(ctx context.Context, id string, active bool) error
+	UpdateUserPassword(ctx context.Context, userID, passwordHash string) error
 	SaveUserInvite(ctx context.Context, email, role, token, invitedBy string, expiresAt time.Time) (*entity.UserInvite, error)
 	GetUserInviteByToken(ctx context.Context, token string) (*entity.UserInvite, error)
 	AcceptUserInvite(ctx context.Context, id string) error
+
+	// PasswordResets
+	SavePasswordReset(ctx context.Context, userID, token string, expiresAt time.Time) (*entity.PasswordReset, error)
+	GetPasswordResetByToken(ctx context.Context, token string) (*entity.PasswordReset, error)
+	MarkPasswordResetUsed(ctx context.Context, id string) error
 
 	// RefreshTokens
 	SaveRefreshToken(ctx context.Context, userID, token string, expiresAt time.Time) error
 	GetRefreshToken(ctx context.Context, token string) (*entity.RefreshToken, error)
 	DeleteRefreshToken(ctx context.Context, token string) error
+	DeleteRefreshTokensByUserID(ctx context.Context, userID string) error
 
 	// Customers
 	SaveCustomer(ctx context.Context, name, customerType string, phone, address *string) (*entity.Customer, error)

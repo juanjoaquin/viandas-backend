@@ -34,3 +34,11 @@ func (r *repo) DeleteRefreshToken(ctx context.Context, token string) error {
 	)
 	return err
 }
+
+func (r *repo) DeleteRefreshTokensByUserID(ctx context.Context, userID string) error {
+	_, err := r.db.ExecContext(ctx,
+		`DELETE FROM refresh_tokens WHERE user_id = $1`,
+		userID,
+	)
+	return err
+}

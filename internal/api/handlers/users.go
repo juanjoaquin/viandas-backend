@@ -13,11 +13,12 @@ import (
 )
 
 type UserHandler struct {
-	serv service.Service
+	serv                  service.Service
+	paginatorLimitDefault string
 }
 
-func NewUserHandler(serv service.Service) *UserHandler {
-	return &UserHandler{serv: serv}
+func NewUserHandler(serv service.Service, paginatorLimitDefault string) *UserHandler {
+	return &UserHandler{serv: serv, paginatorLimitDefault: paginatorLimitDefault}
 }
 
 func respond(c *echo.Context, code int, message string, data interface{}) error {
@@ -119,6 +120,9 @@ func (h *UserHandler) Login(c *echo.Context) error {
 		if err == service.ErrInvalidPassword || err == service.ErrUserNotFound {
 			return respond(c, http.StatusUnauthorized, "invalid credentials", nil)
 		}
+		if err == service.ErrUserInactive {
+			return respond(c, http.StatusForbidden, "account disabled", nil)
+		}
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
@@ -153,6 +157,9 @@ func (h *UserHandler) Refresh(c *echo.Context) error {
 		if err == service.ErrInvalidRefreshToken {
 			return respond(c, http.StatusUnauthorized, "invalid or expired refresh token", nil)
 		}
+		if err == service.ErrUserInactive {
+			return respond(c, http.StatusForbidden, "account disabled", nil)
+		}
 		log.Println(err)
 		return respond(c, http.StatusInternalServerError, err.Error(), nil)
 	}
@@ -178,6 +185,43 @@ func (h *UserHandler) Logout(c *echo.Context) error {
 	return respond(c, http.StatusOK, "logged out successfully", nil)
 }
 
+func (h *UserHandler) ForgotPassword(c *echo.Context) error {
+	ctx := c.Request().Context()
+	var params dtos.ForgotPassword
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	// Siempre 200 para no revelar si el email existe
+	if err := h.serv.RequestPasswordReset(ctx, params.Email); err != nil {
+		log.Println(err)
+	}
+
+	return respond(c, http.StatusOK, "if that email exists, a reset link has been sent", nil)
+}
+
+func (h *UserHandler) ResetPassword(c *echo.Context) error {
+	ctx := c.Request().Context()
+	var params dtos.ResetPassword
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	if err := h.serv.ResetPassword(ctx, params.Token, params.Password); err != nil {
+		switch err {
+		case service.ErrPasswordResetTokenUsed:
+			return respond(c, http.StatusBadRequest, err.Error(), nil)
+		case service.ErrPasswordResetTokenInvalid:
+			return respond(c, http.StatusBadRequest, err.Error(), nil)
+		default:
+			log.Println(err)
+			return respond(c, http.StatusInternalServerError, err.Error(), nil)
+		}
+	}
+
+	return respond(c, http.StatusOK, "password reset successfully", nil)
+}
+
 func (h *UserHandler) Me(c *echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -198,4 +242,85 @@ func (h *UserHandler) Me(c *echo.Context) error {
 	}
 
 	return respond(c, http.StatusOK, "ok", user)
+}
+
+func (h *UserHandler) GetAll(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	nameQuery := c.QueryParam("q")
+
+	activeParam := c.QueryParam("active")
+	var activeFilter *bool
+	if activeParam != "" {
+		if activeParam != "true" && activeParam != "false" {
+			return respond(c, http.StatusBadRequest, "active must be true or false", nil)
+		}
+		active := activeParam == "true"
+		activeFilter = &active
+	}
+
+	return paginatedListResponse(c, h.paginatorLimitDefault,
+		func() (int, error) {
+			return h.serv.CountUsers(ctx, nameQuery, activeFilter)
+		},
+		func(offset, limit int) (interface{}, error) {
+			return h.serv.GetUsers(ctx, nameQuery, activeFilter, offset, limit)
+		},
+	)
+}
+
+func (h *UserHandler) GetByID(c *echo.Context) error {
+	if _, err := requireStaff(c); err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+	id := c.QueryParam("userId")
+	if id == "" {
+		return respond(c, http.StatusBadRequest, "userId is required", nil)
+	}
+
+	user, err := h.serv.GetUserByID(ctx, id)
+	if err != nil {
+		if err == service.ErrUserNotFound {
+			return respond(c, http.StatusNotFound, "user not found", nil)
+		}
+		return respond(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+
+	return respond(c, http.StatusOK, "ok", user)
+}
+
+func (h *UserHandler) Update(c *echo.Context) error {
+	claims, err := requireStaff(c)
+	if err != nil {
+		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	}
+
+	ctx := c.Request().Context()
+
+	var params dtos.UpdateUser
+	if err := c.Bind(&params); err != nil {
+		return respond(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if params.ID == "" {
+		return respond(c, http.StatusBadRequest, "id is required", nil)
+	}
+
+	if err := h.serv.UpdateUserActive(ctx, params.ID, params.Active, claims.UserID); err != nil {
+		switch err {
+		case service.ErrUserNotFound:
+			return respond(c, http.StatusNotFound, "user not found", nil)
+		case service.ErrUserCannotDeactivateSelf:
+			return respond(c, http.StatusBadRequest, err.Error(), nil)
+		default:
+			log.Println(err)
+			return respond(c, http.StatusInternalServerError, err.Error(), nil)
+		}
+	}
+
+	return respond(c, http.StatusOK, "user updated", nil)
 }

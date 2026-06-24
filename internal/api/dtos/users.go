@@ -26,3 +26,17 @@ type LoginUser struct {
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
 }
+
+type ForgotPassword struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type ResetPassword struct {
+	Token    string `json:"token"    validate:"required"`
+	Password string `json:"password" validate:"required,min=6"`
+}
+
+type UpdateUser struct {
+	ID     string `json:"id" validate:"required,uuid"`
+	Active bool   `json:"active"`
+}

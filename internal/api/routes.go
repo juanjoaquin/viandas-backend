@@ -7,7 +7,7 @@ import (
 )
 
 func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service, paginatorLimitDefault string) {
-	userH := handlers.NewUserHandler(serv)
+	userH := handlers.NewUserHandler(serv, paginatorLimitDefault)
 	customerH := handlers.NewCustomerHandler(serv, paginatorLimitDefault)
 	deliveryH := handlers.NewDeliveryHandler(serv, paginatorLimitDefault)
 	menuTypeH := handlers.NewMenuTypeHandler(serv, paginatorLimitDefault)
@@ -26,9 +26,14 @@ func (a *API) RegisterRoutes(e *echo.Echo, serv service.Service, paginatorLimitD
 	auth.GET("/me", userH.Me)
 	auth.POST("/refresh", userH.Refresh)
 	auth.POST("/logout", userH.Logout)
+	auth.POST("/forgot-password", userH.ForgotPassword)
+	auth.POST("/reset-password", userH.ResetPassword)
 
 	// Users
 	users := e.Group("/users")
+	users.GET("", userH.GetAll)
+	users.GET("/one", userH.GetByID)
+	users.PUT("", userH.Update)
 	users.POST("/invites", userH.Invite)
 
 	// Customers

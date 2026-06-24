@@ -46,6 +46,11 @@ func (s *serv) RefreshAccessToken(ctx context.Context, refreshToken string) (str
 		return "", "", ErrUserNotFound
 	}
 
+	if !user.Active {
+		_ = s.repo.DeleteRefreshToken(ctx, refreshToken)
+		return "", "", ErrUserInactive
+	}
+
 	accessToken, err := encryption.SignedLoginToken(&models.User{
 		ID:    user.ID,
 		Email: user.Email,

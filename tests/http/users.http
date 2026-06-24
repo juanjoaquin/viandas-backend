@@ -1,0 +1,68 @@
+### Variables
+@baseUrl = http://localhost:8080
+@token = <pega_tu_access_token_aqui>
+@userId = <pega_el_id_del_usuario>
+
+### ─────────────────────────────
+### USERS
+### ─────────────────────────────
+
+### Listar todos los usuarios
+GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
+
+###
+
+### Listar usuarios paginados
+GET {{baseUrl}}/users?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
+### Listar usuarios filtrando por nombre o email (?q=)
+GET {{baseUrl}}/users?q=admin
+Authorization: Bearer {{token}}
+
+###
+
+### Listar solo usuarios activos
+GET {{baseUrl}}/users?active=true
+Authorization: Bearer {{token}}
+
+###
+
+### Listar solo usuarios inactivos
+GET {{baseUrl}}/users?active=false
+Authorization: Bearer {{token}}
+
+###
+
+### Obtener usuario por ID
+GET {{baseUrl}}/users/one?userId={{userId}}
+Authorization: Bearer {{token}}
+
+###
+
+### Activar usuario
+PUT {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": "{{userId}}",
+  "active": true
+}
+
+###
+
+### Desactivar usuario
+PUT {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": "{{userId}}",
+  "active": false
+}
+
+###
