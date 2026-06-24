@@ -19,7 +19,7 @@ func NewCustomerHandler(serv service.Service, paginatorLimitDefault string) *Cus
 }
 
 func (h *CustomerHandler) Create(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -85,7 +85,7 @@ func (h *CustomerHandler) GetByID(c *echo.Context) error {
 }
 
 func (h *CustomerHandler) Update(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -109,7 +109,7 @@ func (h *CustomerHandler) Update(c *echo.Context) error {
 }
 
 func (h *CustomerHandler) Delete(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 

@@ -19,7 +19,7 @@ func NewProductCategoryHandler(serv service.Service, paginatorLimitDefault strin
 }
 
 func (h *ProductCategoryHandler) Create(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -90,7 +90,7 @@ func (h *ProductCategoryHandler) GetByID(c *echo.Context) error {
 }
 
 func (h *ProductCategoryHandler) Update(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -116,7 +116,7 @@ func (h *ProductCategoryHandler) Update(c *echo.Context) error {
 }
 
 func (h *ProductCategoryHandler) Delete(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 

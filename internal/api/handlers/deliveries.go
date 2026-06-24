@@ -19,7 +19,7 @@ func NewDeliveryHandler(serv service.Service, paginatorLimitDefault string) *Del
 }
 
 func (h *DeliveryHandler) Create(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -79,7 +79,7 @@ func (h *DeliveryHandler) GetByID(c *echo.Context) error {
 }
 
 func (h *DeliveryHandler) Update(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -105,7 +105,7 @@ func (h *DeliveryHandler) Update(c *echo.Context) error {
 }
 
 func (h *DeliveryHandler) Delete(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 

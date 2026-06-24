@@ -245,8 +245,8 @@ func (h *UserHandler) Me(c *echo.Context) error {
 }
 
 func (h *UserHandler) GetAll(c *echo.Context) error {
-	if _, err := requireStaff(c); err != nil {
-		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	if _, err := requireAdmin(c); err != nil {
+		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
 	ctx := c.Request().Context()
@@ -273,8 +273,8 @@ func (h *UserHandler) GetAll(c *echo.Context) error {
 }
 
 func (h *UserHandler) GetByID(c *echo.Context) error {
-	if _, err := requireStaff(c); err != nil {
-		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+	if _, err := requireAdmin(c); err != nil {
+		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
 	ctx := c.Request().Context()
@@ -295,9 +295,9 @@ func (h *UserHandler) GetByID(c *echo.Context) error {
 }
 
 func (h *UserHandler) Update(c *echo.Context) error {
-	claims, err := requireStaff(c)
+	claims, err := requireAdmin(c)
 	if err != nil {
-		return respond(c, http.StatusUnauthorized, "unauthorized", nil)
+		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
 	ctx := c.Request().Context()

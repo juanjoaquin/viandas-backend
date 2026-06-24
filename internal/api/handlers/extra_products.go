@@ -19,7 +19,7 @@ func NewExtraProductHandler(serv service.Service, paginatorLimitDefault string) 
 }
 
 func (h *ExtraProductHandler) Create(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -82,7 +82,7 @@ func (h *ExtraProductHandler) GetByID(c *echo.Context) error {
 }
 
 func (h *ExtraProductHandler) Update(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -111,7 +111,7 @@ func (h *ExtraProductHandler) Update(c *echo.Context) error {
 }
 
 func (h *ExtraProductHandler) Delete(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 

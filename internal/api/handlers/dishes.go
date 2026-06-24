@@ -19,7 +19,7 @@ func NewDishHandler(serv service.Service, paginatorLimitDefault string) *DishHan
 }
 
 func (h *DishHandler) Create(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -81,7 +81,7 @@ func (h *DishHandler) GetByID(c *echo.Context) error {
 }
 
 func (h *DishHandler) Update(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -107,7 +107,7 @@ func (h *DishHandler) Update(c *echo.Context) error {
 }
 
 func (h *DishHandler) Delete(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 

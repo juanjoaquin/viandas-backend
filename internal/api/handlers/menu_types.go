@@ -19,7 +19,7 @@ func NewMenuTypeHandler(serv service.Service, paginatorLimitDefault string) *Men
 }
 
 func (h *MenuTypeHandler) Create(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -90,7 +90,7 @@ func (h *MenuTypeHandler) GetByID(c *echo.Context) error {
 }
 
 func (h *MenuTypeHandler) Update(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -116,7 +116,7 @@ func (h *MenuTypeHandler) Update(c *echo.Context) error {
 }
 
 func (h *MenuTypeHandler) Delete(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 

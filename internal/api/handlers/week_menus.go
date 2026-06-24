@@ -19,7 +19,7 @@ func NewWeekMenuHandler(serv service.Service) *WeekMenuHandler {
 }
 
 func (h *WeekMenuHandler) Create(c *echo.Context) error {
-	claims, err := requireAdmin(c)
+	claims, err := requireStaff(c)
 	if err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
@@ -118,7 +118,7 @@ func (h *WeekMenuHandler) Resolve(c *echo.Context) error {
 }
 
 func (h *WeekMenuHandler) Delete(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -140,7 +140,7 @@ func (h *WeekMenuHandler) Delete(c *echo.Context) error {
 }
 
 func (h *WeekMenuHandler) AddItem(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -167,7 +167,7 @@ func (h *WeekMenuHandler) AddItem(c *echo.Context) error {
 }
 
 func (h *WeekMenuHandler) UpdateItem(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
@@ -188,7 +188,7 @@ func (h *WeekMenuHandler) UpdateItem(c *echo.Context) error {
 }
 
 func (h *WeekMenuHandler) DeleteItem(c *echo.Context) error {
-	if _, err := requireAdmin(c); err != nil {
+	if _, err := requireStaff(c); err != nil {
 		return respond(c, http.StatusForbidden, "forbidden", nil)
 	}
 
