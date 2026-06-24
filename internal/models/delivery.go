@@ -5,5 +5,5 @@ type Delivery struct {
 	Name      string  `json:"name"`
 	Phone     *string `json:"phone"`
 	Active    bool    `json:"active"`
-	CreatedAt string `json:"created_at"`
+	CreatedAt string  `json:"created_at"`
 }

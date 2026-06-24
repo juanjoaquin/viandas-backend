@@ -14,9 +14,9 @@ type DailyProduction struct {
 }
 
 type DailyProductionLine struct {
-	ID          string    `json:"id"`
-	MenuType    *MenuType `json:"menu_type,omitempty"`
-	Quantity    int       `json:"quantity"`
+	ID       string    `json:"id"`
+	MenuType *MenuType `json:"menu_type,omitempty"`
+	Quantity int       `json:"quantity"`
 }
 
 type DailyProductionExtra struct {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/lib/pq"
 	"github.com/jmoiron/sqlx"
 	"github.com/juanjoaquin/viandas-backend/settings"
+	_ "github.com/lib/pq"
 )
 
 func New(ctx context.Context, s *settings.Settings) (*sqlx.DB, error) {

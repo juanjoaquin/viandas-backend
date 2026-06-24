@@ -22,10 +22,10 @@ var (
 	ErrUserInactive             = errors.New("account disabled")
 	ErrUserCannotDeactivateSelf = errors.New("cannot deactivate your own account")
 	ErrInvalidPassword          = errors.New("invalid password")
-	ErrInvalidInvite          = errors.New("invalid invite")
-	ErrInviteExpired          = errors.New("invite expired")
-	ErrInviteAlreadyAccepted  = errors.New("invite already accepted")
-	ErrInviteRoleNotSupported = errors.New("invite role not supported")
+	ErrInvalidInvite            = errors.New("invalid invite")
+	ErrInviteExpired            = errors.New("invite expired")
+	ErrInviteAlreadyAccepted    = errors.New("invite already accepted")
+	ErrInviteRoleNotSupported   = errors.New("invite role not supported")
 )
 
 func (s *serv) RegisterUser(ctx context.Context, name, email, password, role string) error {

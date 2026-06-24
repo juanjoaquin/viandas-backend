@@ -18,8 +18,8 @@ type WeekMenuItem struct {
 }
 
 type DayMenu struct {
-	Date  string          `json:"date"`
-	Lines []DayMenuLine   `json:"lines"`
+	Date  string        `json:"date"`
+	Lines []DayMenuLine `json:"lines"`
 }
 
 type DayMenuLine struct {
