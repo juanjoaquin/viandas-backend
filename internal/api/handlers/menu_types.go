@@ -1,8 +1,12 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/juanjoaquin/viandas-backend/internal/api/dtos"
 	"github.com/juanjoaquin/viandas-backend/internal/service"
@@ -129,6 +133,30 @@ func (h *MenuTypeHandler) Delete(c *echo.Context) error {
 	if params.ID == "" {
 		return respond(c, http.StatusBadRequest, "id is required", nil)
 	}
+
+	// #region agent log
+	func() {
+		b, _ := json.Marshal(map[string]interface{}{
+			"sessionId": "d8bacb", "hypothesisId": "F", "runId": "post-fix",
+			"location": "menu_types.go:Delete", "message": "handler DeleteMenuType entry",
+			"data": map[string]interface{}{"id": params.ID}, "timestamp": time.Now().UnixMilli(),
+		})
+		_ = os.MkdirAll("/home/juan/github/viandas-backend/.cursor", 0755)
+		if f, err := os.OpenFile("/home/juan/github/viandas-backend/.cursor/debug-d8bacb.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+			_, _ = f.Write(append(b, '\n'))
+			_ = f.Close()
+		}
+		client := &http.Client{Timeout: 2 * time.Second}
+		req, _ := http.NewRequest(http.MethodPost, "http://host.docker.internal:7677/ingest/4882f41c-573b-4ad0-8bdf-7268d958ad2e", bytes.NewReader(b))
+		if req != nil {
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("X-Debug-Session-Id", "d8bacb")
+			if resp, err := client.Do(req); err == nil {
+				_ = resp.Body.Close()
+			}
+		}
+	}()
+	// #endregion
 
 	if err := h.serv.DeleteMenuType(ctx, params.ID); err != nil {
 		if err == service.ErrMenuTypeNotFound {
