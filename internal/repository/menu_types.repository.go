@@ -13,6 +13,8 @@ import (
 	"github.com/lib/pq"
 )
 
+// Se fixeo el menu types que daba error SQL
+
 func (r *repo) SaveMenuType(ctx context.Context, name string, price *float64) (*entity.MenuType, error) {
 	var mt entity.MenuType
 	err := r.db.QueryRowxContext(ctx,
